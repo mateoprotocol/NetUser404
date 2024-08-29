@@ -40,12 +40,7 @@ def format_resource_links(base_url, resource_links):
     return resource_links
 #--------------------------------------------
 
-
-
-
-if __name__ == "__main__":
-
-    url= "https://calculos-energeticos.netlify.app/fotovoltaico"
+def get_all_urls(url):
     resource_links= []
 
     soup= scrape_webpage(url)
@@ -57,4 +52,14 @@ if __name__ == "__main__":
     base_url= get_url_base(url)
 
     resource_links= format_resource_links(base_url, resource_links)
+
+    return resource_links
+
+
+if __name__ == "__main__":
+
+    url= "https://calculos-energeticos.netlify.app/fotovoltaico"
+
+    resource_links= get_all_urls(url)
+    print(resource_links)
 

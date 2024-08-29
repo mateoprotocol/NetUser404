@@ -32,7 +32,7 @@ def get_script_links(soup,resource_links):
         if script.get("src"):
             resource_links.append(script.get("src"))
 
-def format_resource_links(base_url, resource_links):
+def format_resource_links(url,base_url, resource_links):
     resource_links= [f"{base_url}/{link}" for link in resource_links] 
     resource_links.insert(0,url) 
     resource_links= tuple(resource_links)
@@ -51,7 +51,7 @@ def get_all_urls(url):
 
     base_url= get_url_base(url)
 
-    resource_links= format_resource_links(base_url, resource_links)
+    resource_links= format_resource_links(url,base_url, resource_links)
 
     return resource_links
 

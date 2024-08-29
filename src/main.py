@@ -3,4 +3,10 @@ from metrics import get_metrics
 
 
 if __name__ == "__main__":
-    print("Hello World")
+
+    url= "https://calculos-energeticos.netlify.app/fotovoltaico"
+
+    resource_links= get_all_urls(url)
+    metrics = get_metrics(*resource_links)
+
+    print(metrics)

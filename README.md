@@ -17,3 +17,6 @@ y retorna los diferentes parámetros
 Este archivo contiene la función que retorna los links de donde provienen los
 archivos de la página web seleccionada
 
+## Network_identify.py
+
+Este archivo contiene funciones que retornan la dirección pública y privada del end-user.

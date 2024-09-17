@@ -51,7 +51,8 @@ def readAllRows():
 
 if __name__ == "__main__":
     #insertRow("192.168.1.0", "2024-09-16", "16:40", 200, 783.2, "GET", "html", 22.3)
-    readAllRows()
+    #readAllRows()
+    #createTable()
     pass
     
     

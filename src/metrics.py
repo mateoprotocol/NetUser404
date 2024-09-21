@@ -1,5 +1,8 @@
 import requests
 from datetime import datetime
+from selenium import webdriver
+import time
+
 
 def get_metrics(*args):
     status_codes= []
@@ -24,11 +27,34 @@ def get_metrics(*args):
 
     return status_codes, response_times, str(onlydate), f"{hour}:{minute}", sizes, types
 
+def get_time_page(url):
+    # Configurar el driver (Chrome en este caso)
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')  # Para ejecutar en modo sin interfaz gráfica
+    driver = webdriver.Chrome(options=options)
+
+    # Medir tiempos
+    start_time = time.time()
+    driver.get(url)
+    navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
+    response_start = driver.execute_script("return window.performance.timing.responseStart")
+    dom_complete = driver.execute_script("return window.performance.timing.domComplete")
+
+    # Calcular métricas
+    ttfb = (response_start - navigation_start) / 1000  # Time to First Byte
+    total_load_time = (dom_complete - navigation_start) / 1000  # Tiempo total de carga
+
+    driver.quit()
+
+    return {
+        'TTFB': ttfb,
+        'Total Load Time': total_load_time
+    }
 
 
 
 if __name__ == "__main__":
 
-    url= "https://calculos-energeticos.netlify.app/_astro/hoisted.D_3o3WCS.js"
-    metrics = get_metrics(url)
+    url= "https://calculos-energeticos.netlify.app/fotovoltaico/"
+    metrics = get_time_page(url)
     print(metrics)

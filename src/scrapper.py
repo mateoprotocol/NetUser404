@@ -58,7 +58,7 @@ def get_all_urls(url):
 
 if __name__ == "__main__":
 
-    url= "https://calculos-energeticos.netlify.app/fotovoltaico"
+    url= "https://www.eltiempo.com/"
 
     resource_links= get_all_urls(url)
     print(resource_links)

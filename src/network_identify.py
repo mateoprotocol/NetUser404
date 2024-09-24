@@ -1,15 +1,16 @@
 import subprocess
 import socket
 
+
 def obtener_bssid():
     try:
-        #                                            Elimina OUTPUT de las demás interfaces
+        # Elimina OUTPUT de las demás interfaces
         resultado = subprocess.check_output(["iwconfig"], stderr=subprocess.DEVNULL, encoding='utf-8')
 
         interfaz_activa = None
         bssid = None
 
-        # Analiza la salida de iwconfig(solo linux por ahora) línea por línea
+        # Analiza la salida de iwconfig línea por línea
         for linea in resultado.split("\n"):
             # Detecta la interfaz inalámbrica
             if "IEEE 802.11" in linea:
@@ -30,12 +31,10 @@ def obtener_bssid():
 
 
 def obtener_ip_activa():
-
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    
     try:
-        s.connect(("8.8.8.8", 80))  #conecta con dns de google
-        ip = s.getsockname()[0]     #obtiene la ip local de la interfaz que responde
+        s.connect(("8.8.8.8", 80))  # Conecta con DNS de Google
+        ip = s.getsockname()[0]     # Obtiene la IP local de la interfaz que responde
     except Exception as e:
         ip = "No active interfaces"
     finally:
@@ -43,10 +42,24 @@ def obtener_ip_activa():
     
     return ip
 
+
+def obtener_mac(interfaz):
+    # Ubicación de la dirección MAC en el sistema de archivos de Linux
+    ruta_mac = f"/sys/class/net/{interfaz}/address"
+    try:
+        with open(ruta_mac) as f:
+            mac = f.read().strip()
+        return mac
+    except FileNotFoundError:
+        return None
+
+ 
 # Obtener el BSSID y la interfaz
 interfaz, bssid = obtener_bssid()
-
+mac_address = obtener_mac(interfaz)
 
 if __name__ == "__main__":
     print(obtener_ip_activa())
     print(bssid)
+    print(mac_address)
+

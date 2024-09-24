@@ -5,6 +5,14 @@ import time
 import socket
 
 
+
+def get_date_time():
+    now = datetime.now()
+    current_date = now.strftime("%Y-%m-%d")
+    current_time = now.strftime("%H:%M:%S") 
+    return current_date, current_time
+    
+
 def is_connected():
     try:
         socket.create_connection(("8.8.8.8", 53))
@@ -65,9 +73,9 @@ def get_time_page(url):
     }
 
 
-
 if __name__ == "__main__":
 
     url= "https://calculos-energeticos.netlify.app/fotovoltaico/"
     metrics = get_time_page(url)
     print(metrics)
+    print(get_date_time())

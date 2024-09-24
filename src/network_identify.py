@@ -1,5 +1,18 @@
 import subprocess
 import socket
+import platform
+
+def detectar_sistema_operativo():
+    
+    sistema = platform.system()
+    if sistema == "Linux":
+        return "Linux"
+    elif sistema == "Windows":
+        return "Windows"
+    else:
+        return None
+
+
 
 
 def obtener_bssid():
@@ -43,24 +56,45 @@ def obtener_ip_activa():
     return ip
 
 
-def obtener_mac(interfaz):
-    # Ubicación de la dirección MAC en el sistema de archivos de Linux
-    ruta_mac = f"/sys/class/net/{interfaz}/address"
-    try:
-        with open(ruta_mac) as f:
-            mac = f.read().strip()
-        return mac
-    except FileNotFoundError:
-        return None
+def obtener_mac(interfaz=None):
+    sistema = detectar_sistema_operativo()
+    
+    if sistema == "Linux":
+        # Ubicación de la dirección MAC en el sistema de archivos de Linux
+        ruta_mac = f"/sys/class/net/{interfaz}/address"
+        try:
+            with open(ruta_mac) as f:
+                mac = f.read().strip()
+            return mac
+        except FileNotFoundError:
+            return None
+    elif sistema == "Windows":
+        try:
+            # Usa el comando getmac en Windows
+            resultado = subprocess.check_output(["getmac", "/v", "/fo", "list"], encoding="utf-8")
+            mac_addresses = []
+            for linea in resultado.split("\n"):
+                if "Dirección física" in linea or "Physical Address" in linea:
+                    mac = linea.split(":")[1].strip()
+                    mac_addresses.append(mac)
+            if mac_addresses:
+                return mac_addresses  # Devuelve una lista con todas las MACs detectadas
+            else:
+                return None
+        except subprocess.CalledProcessError:
+            return None
 
  
 # Obtener el BSSID y la interfaz
 interfaz, bssid = obtener_bssid()
 mac_address = obtener_mac(interfaz)
+ip = obtener_ip_activa()
+sistema = detectar_sistema_operativo()
 
 if __name__ == "__main__":
-    print(obtener_ip_activa())
+    print(ip)
     print(bssid)
     print(mac_address)
+    print(sistema)
 
 

@@ -2,9 +2,18 @@ import requests
 from datetime import datetime
 from selenium import webdriver
 import time
+import socket
 
+
+def is_connected():
+    try:
+        socket.create_connection(("8.8.8.8", 53))
+        return True
+    except OSError:
+        return False   
 
 def get_metrics(*args):
+
     status_codes= []
     response_times= []
     sizes= []
@@ -28,6 +37,10 @@ def get_metrics(*args):
     return status_codes, response_times, str(onlydate), f"{hour}:{minute}", sizes, types
 
 def get_time_page(url):
+
+    if not is_connected():
+        return "No hay conexión a internet"
+
     # Configurar el driver (Chrome en este caso)
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')  # Para ejecutar en modo sin interfaz gráfica

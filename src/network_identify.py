@@ -12,35 +12,66 @@ def detectar_sistema_operativo():
     else:
         return None
 
-
-
-
 def obtener_bssid():
-    try:
-        # Elimina OUTPUT de las demás interfaces
-        resultado = subprocess.check_output(["iwconfig"], stderr=subprocess.DEVNULL, encoding='utf-8')
+    sistema = detectar_sistema_operativo()
+    if sistema == "Linux":
+        try:
+            # Elimina OUTPUT de las demás interfaces
+            resultado = subprocess.check_output(["iwconfig"], stderr=subprocess.DEVNULL, encoding='utf-8')
 
-        interfaz_activa = None
-        bssid = None
+            interfaz_activa = None
+            bssid = None
 
-        # Analiza la salida de iwconfig línea por línea
-        for linea in resultado.split("\n"):
-            # Detecta la interfaz inalámbrica
-            if "IEEE 802.11" in linea:
-                # Extrae el nombre de la interfaz (antes del primer espacio)
-                interfaz_activa = linea.split()[0]
-            # Busca la línea que contiene el BSSID (Access Point)
-            if "Access Point" in linea and interfaz_activa:
-                bssid = linea.split("Access Point: ")[1].strip()
-                break 
+            # Analiza la salida de iwconfig línea por línea
+            for linea in resultado.split("\n"):
+                # Detecta la interfaz inalámbrica
+                if "IEEE 802.11" in linea:
+                    # Extrae el nombre de la interfaz (antes del primer espacio)
+                    interfaz_activa = linea.split()[0]
+                # Busca la línea que contiene el BSSID (Access Point)
+                if "Access Point" in linea and interfaz_activa:
+                    bssid = linea.split("Access Point: ")[1].strip()
+                    break 
 
-        if interfaz_activa and bssid:
-            return interfaz_activa, bssid
-        else:
+            if interfaz_activa and bssid:
+                return interfaz_activa, bssid
+            else:
+                return None, None
+
+        except subprocess.CalledProcessError:
             return None, None
+        
+    elif sistema == "Windows":
+        try:
+        # Ejecuta el comando netsh para obtener información de las interfaces Wi-Fi en Windows
+            resultado = subprocess.check_output(
+                ["netsh", "wlan", "show", "interfaces"],
+                stderr=subprocess.DEVNULL,
+                encoding='utf-8'
+            )
 
-    except subprocess.CalledProcessError:
-        return None, None
+            interfaz_activa = None
+            bssid = None
+
+            # Analiza la salida línea por línea
+            for linea in resultado.split("\n"):
+                # Busca la línea que contiene el nombre de la interfaz
+                if "Nombre de la interfaz" in linea or "Interface name" in linea:
+                    interfaz_activa = linea.split(":")[1].strip()
+
+                # Busca la línea que contiene el BSSID
+                if "BSSID" in linea:
+                    bssid = linea.split(":")[1].strip()
+
+            if interfaz_activa and bssid:
+                return interfaz_activa, bssid  # Devuelve la interfaz y el BSSID
+            else:
+                return None, None
+
+        except subprocess.CalledProcessError:
+            return None, None
+            
+
 
 
 def obtener_ip_activa():

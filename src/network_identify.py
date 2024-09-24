@@ -62,5 +62,5 @@ if __name__ == "__main__":
     print(obtener_ip_activa())
     print(bssid)
     print(mac_address)
-    print("new branch")
+
 

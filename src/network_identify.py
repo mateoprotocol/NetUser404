@@ -12,6 +12,20 @@ def detectar_sistema_operativo():
     else:
         return None
 
+
+def obtener_ip_activa():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))  # Conecta con DNS de Google
+        ip = s.getsockname()[0]     # Obtiene la IP local de la interfaz que responde
+    except Exception as e:
+        ip = "No active interfaces"
+    finally:
+        s.close()
+    
+    return ip
+
+
 def obtener_bssid():
     sistema = detectar_sistema_operativo()
     if sistema == "Linux":
@@ -43,11 +57,11 @@ def obtener_bssid():
         
     elif sistema == "Windows":
         try:
-        # Ejecuta el comando netsh para obtener información de las interfaces Wi-Fi en Windows
+            # Ejecuta el comando netsh para obtener información de las interfaces Wi-Fi en Windows
             resultado = subprocess.check_output(
                 ["netsh", "wlan", "show", "interfaces"],
                 stderr=subprocess.DEVNULL,
-                encoding='utf-8'
+                encoding='latin-1'
             )
 
             interfaz_activa = None
@@ -56,35 +70,23 @@ def obtener_bssid():
             # Analiza la salida línea por línea
             for linea in resultado.split("\n"):
                 # Busca la línea que contiene el nombre de la interfaz
-                if "Nombre de la interfaz" in linea or "Interface name" in linea:
+                if "Nombre" in linea or "Name" in linea:
                     interfaz_activa = linea.split(":")[1].strip()
 
                 # Busca la línea que contiene el BSSID
                 if "BSSID" in linea:
-                    bssid = linea.split(":")[1].strip()
+                    bssid = ":".join(linea.split(":")[1:]).strip()
 
             if interfaz_activa and bssid:
                 return interfaz_activa, bssid  # Devuelve la interfaz y el BSSID
             else:
                 return None, None
 
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            print(f"Error al ejecutar el comando: {e}")
             return None, None
-            
 
 
-
-def obtener_ip_activa():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        s.connect(("8.8.8.8", 80))  # Conecta con DNS de Google
-        ip = s.getsockname()[0]     # Obtiene la IP local de la interfaz que responde
-    except Exception as e:
-        ip = "No active interfaces"
-    finally:
-        s.close()
-    
-    return ip
 
 
 def obtener_mac(interfaz=None):
@@ -100,22 +102,27 @@ def obtener_mac(interfaz=None):
         except FileNotFoundError:
             return None
     elif sistema == "Windows":
+
         try:
-            # Usa el comando getmac en Windows
-            resultado = subprocess.check_output(["getmac", "/v", "/fo", "list"], encoding="utf-8")
-            mac_addresses = []
+            resultado = subprocess.check_output(
+                ["netsh", "wlan", "show", "interfaces"],
+                stderr=subprocess.DEVNULL,
+                encoding='latin-1'
+            )
+            mac = None
             for linea in resultado.split("\n"):
-                if "Dirección física" in linea or "Physical Address" in linea:
-                    mac = linea.split(":")[1].strip()
-                    mac_addresses.append(mac)
-            if mac_addresses:
-                return mac_addresses  # Devuelve una lista con todas las MACs detectadas
+                if "Direcci¢n" in linea:
+                    mac = ":".join(linea.split(":")[1:]).strip()
+            if mac:
+                return mac
             else:
                 return None
-        except subprocess.CalledProcessError:
+        except subprocess.CalledProcessError as e:
+            print(f"Error al ejecutar el comando: {e}")
             return None
-
+  
  
+
 # Obtener el BSSID y la interfaz
 interfaz, bssid = obtener_bssid()
 mac_address = obtener_mac(interfaz)

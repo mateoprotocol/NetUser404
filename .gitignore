@@ -1,4 +1,6 @@
 env
 .venv
+*.csv
 src/__pycache__
-Database.db
+ejecutar.sh
+icon.png

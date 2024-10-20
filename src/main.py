@@ -4,11 +4,13 @@ from datetime import datetime
 import time
 import csv
 
-
 id = 0
 
 if __name__ == "__main__":
-    while True:
+
+    hora_limite = datetime.now().replace(hour=18, minute=20, second=0, microsecond=0)
+
+    while datetime.now() < hora_limite:
         ## Identificación 
         interfaz, bssid = obtener_bssid()
         mac_address = obtener_mac(interfaz)
@@ -46,7 +48,8 @@ if __name__ == "__main__":
             escritor = csv.writer(archivo)
             datos = [id, fecha, hora, sistema, mac_address, bssid, ip, url, status, load, transferred, delay]
             escritor.writerow(datos)
-            print(f"Datos guardados: {datos}")
             time.sleep(20)
 
         id +=1
+    print("*"*20)
+    print("Fin de la medición")

@@ -2,6 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
+from ping3 import ping
+import requests
 
 def start_browser(url):
     # Inicializar el navegador con opciones
@@ -50,7 +52,18 @@ def get_transferred_and_time(url):
     return transferred_kb, load_time
 
 
+def get_status_code(url):
+
+    r = requests.get(url)
+
+    return r.status_code
+
 if __name__ == "__main__":
-    transferred, load_time = get_transferred_and_time('https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos')
-    
-    print(f"Transferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms")
+
+    url = 'https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos'
+
+    status = get_status_code(url)
+    transferred, load_time = get_transferred_and_time(url)
+    delay = ping('1.1.1.1',unit='ms')
+
+    print(f"Status code: {status}\nTransferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms\ndelay: {delay}")

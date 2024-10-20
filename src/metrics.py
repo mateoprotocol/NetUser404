@@ -1,73 +1,56 @@
-import requests
-from datetime import datetime
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 import time
-import socket
 
-
-def is_connected():
-    try:
-        socket.create_connection(("8.8.8.8", 53))
-        return True
-    except OSError:
-        return False   
-
-def get_metrics(*args):
-
-    status_codes= []
-    response_times= []
-    sizes= []
-    types = []
-
-    for i in args:
-        r= requests.get(i)
-        status_codes.append(r.status_code)
-        response_times.append(r.elapsed.total_seconds()*1000) # tiempo de respuesta en milisegundos
-        sizes.append(len(r.content))
-        types.append(r.headers['content-type'].split(";")[0]) # tipo de contenido
-
-        # modificando y usando el formato de la fecha
-        date= r.headers['date'] # resultado en string
-        newDate= datetime.strptime(date,"%a, %d %b %Y %H:%M:%S %Z") # cambiar de string a datetime para poder manipular la fecha
-        newDate= newDate.now() # cambiar la zona horaria a la de mi región
-        onlydate= newDate.date()
-        minute= newDate.minute
-        hour= newDate.hour
-
-    return status_codes, response_times, str(onlydate), f"{hour}:{minute}", sizes, types
-
-def get_time_page(url):
-
-    if not is_connected():
-        return "No hay conexión a internet"
-
-    # Configurar el driver (Chrome en este caso)
+def start_browser(url):
+    # Inicializar el navegador con opciones
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # Para ejecutar en modo sin interfaz gráfica
-    driver = webdriver.Chrome(options=options)
+    options.add_argument('--headless')  # Modo headless (sin interfaz gráfica)
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--incognito')
+    options.add_argument('--disable-cache')
+    options.add_argument('--disk-cache-size=0')
 
-    # Medir tiempos
-    start_time = time.time()
+    # Iniciar el navegador
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
+    # Ir a la página deseada y esperar hasta que se complete la carga
     driver.get(url)
-    navigation_start = driver.execute_script("return window.performance.timing.navigationStart")
-    response_start = driver.execute_script("return window.performance.timing.responseStart")
-    dom_complete = driver.execute_script("return window.performance.timing.domComplete")
+    driver.implicitly_wait(20)  # Espera hasta 10 segundos por la carga de recursos si es necesario
+    time.sleep(2)
 
-    # Calcular métricas
-    ttfb = (response_start - navigation_start) / 1000  # Time to First Byte
-    total_load_time = (dom_complete - navigation_start) / 1000  # Tiempo total de carga
+    return driver
+
+
+def get_transferred_and_time(url):
+    driver = start_browser(url)
+
+    # Obtener datos transferidos
+    transferred_kb = driver.execute_script("""
+        let totalTransferred = 0;
+        performance.getEntriesByType('resource').forEach(resource => {
+            if (resource.transferSize) {
+                totalTransferred += resource.transferSize;
+            } else if (resource.encodedBodySize) {
+                totalTransferred += resource.encodedBodySize;
+            }
+        });
+        return totalTransferred / 1024;  // Convertir a kB
+    """)
+
+    # Obtener tiempo de carga
+    load_time = driver.execute_script("""
+        const [entry] = performance.getEntriesByType('navigation');
+        return entry.loadEventEnd - entry.startTime;  // Tiempo de carga en ms
+    """)
 
     driver.quit()
-
-    return {
-        'TTFB': ttfb,
-        'Total Load Time': total_load_time
-    }
-
+    return transferred_kb, load_time
 
 
 if __name__ == "__main__":
-
-    url= "https://calculos-energeticos.netlify.app/fotovoltaico/"
-    metrics = get_time_page(url)
-    print(metrics)
+    transferred, load_time = get_transferred_and_time('https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos')
+    
+    print(f"Transferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms")

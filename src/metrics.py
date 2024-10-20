@@ -4,6 +4,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 import time
 from ping3 import ping
 import requests
+import socket
+
+def is_connected():
+    try:
+        socket.create_connection(("8.8.8.8", 53))
+        return True
+    except OSError:
+        return False  
 
 def start_browser(url):
     # Inicializar el navegador con opciones
@@ -60,10 +68,14 @@ def get_status_code(url):
 
 if __name__ == "__main__":
 
-    url = 'https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos'
+    if is_connected():
+        url = 'https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos'
+        url2 = 'es.wikipedia.org'
 
-    status = get_status_code(url)
-    transferred, load_time = get_transferred_and_time(url)
-    delay = ping('1.1.1.1',unit='ms')
+        status = get_status_code(url)
+        transferred, load_time = get_transferred_and_time(url)
+        delay = ping(url2,unit='ms')
 
-    print(f"Status code: {status}\nTransferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms\ndelay: {delay}")
+        print(f"Status code: {status}\nTransferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms\ndelay: {delay}")
+    else:
+        print("No hay conexión a internet")

@@ -3,50 +3,54 @@ from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 
-# Inicializar el navegador usando el WebDriver manager
-options = webdriver.ChromeOptions()
-# Elimina la línea de headless para ver el navegador
-options.add_argument('--headless')  # Ejecutar en modo headless (sin interfaz gráfica)
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
-options.add_argument('--disable-cache')
-options.add_argument('--disk-cache-size=0')
-options.add_argument('--incognito')
+def start_browser(url):
+    # Inicializar el navegador con opciones
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')  # Modo headless (sin interfaz gráfica)
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--incognito')
+    options.add_argument('--disable-cache')
+    options.add_argument('--disk-cache-size=0')
 
-# Iniciar el navegador
-driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # Iniciar el navegador
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-# Ir a la página deseada
-url = 'https://es.wikipedia.org/wiki/Urano_(planeta)'
-start_time = time.time()
-driver.get(url)
-time.sleep(10) 
+    # Ir a la página deseada y esperar hasta que se complete la carga
+    driver.get(url)
+    driver.implicitly_wait(20)  # Espera hasta 10 segundos por la carga de recursos si es necesario
+    time.sleep(2)
 
-load_time = driver.execute_script("""
-    const [entry] = performance.getEntriesByType('navigation');
-    return entry.loadEventEnd - entry.startTime;  // Tiempo de carga en ms
-""")
+    return driver
 
-# Obtener el total de datos transferidos
-total_transferred = driver.execute_script("""
-    let totalTransferred = 0;
-    const resources = performance.getEntriesByType('resource');
 
-    resources.forEach(resource => {
-        if (resource.transferSize) {
-            totalTransferred += resource.transferSize;
-        } else if (resource.encodedBodySize) {
-            totalTransferred += resource.encodedBodySize;
-        }
-    });
+def get_transferred_and_time(url):
+    driver = start_browser(url)
 
-    return totalTransferred / 1024;  // Convertir a kB
-""")
-transferred_kb = total_transferred 
+    # Obtener datos transferidos
+    transferred_kb = driver.execute_script("""
+        let totalTransferred = 0;
+        performance.getEntriesByType('resource').forEach(resource => {
+            if (resource.transferSize) {
+                totalTransferred += resource.transferSize;
+            } else if (resource.encodedBodySize) {
+                totalTransferred += resource.encodedBodySize;
+            }
+        });
+        return totalTransferred / 1024;  // Convertir a kB
+    """)
 
-# Mostrar los resultados
-print(f'Transferred: {transferred_kb:.2f} kB')
-print(f'Load: {load_time} ms')
+    # Obtener tiempo de carga
+    load_time = driver.execute_script("""
+        const [entry] = performance.getEntriesByType('navigation');
+        return entry.loadEventEnd - entry.startTime;  // Tiempo de carga en ms
+    """)
 
-# Cerrar el navegador
-driver.quit()
+    driver.quit()
+    return transferred_kb, load_time
+
+
+if __name__ == "__main__":
+    transferred, load_time = get_transferred_and_time('https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos')
+    
+    print(f"Transferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms")

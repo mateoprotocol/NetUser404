@@ -8,9 +8,12 @@ id = 0
 
 if __name__ == "__main__":
 
-    hora_limite = datetime.now().replace(hour=18, minute=20, second=0, microsecond=0)
+    hora_ = int(input("hora: "))
+    minuto_ = int(input("minutos: "))
+    hora_limite = datetime.now().replace(hour=hora_, minute=minuto_, second=0, microsecond=0)
 
     while datetime.now() < hora_limite:
+        print("*"*20)
         ## Identificación 
         interfaz, bssid = obtener_bssid()
         mac_address = obtener_mac(interfaz)

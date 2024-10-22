@@ -51,8 +51,8 @@ if __name__ == "__main__":
             escritor = csv.writer(archivo)
             datos = [id, fecha, hora, sistema, mac_address, bssid, ip, url, status, load, transferred, delay]
             escritor.writerow(datos)
-            time.sleep(20)
-
+            
+        time.sleep(20)
         id +=1
     print("*"*20)
     print("Fin de la medición")

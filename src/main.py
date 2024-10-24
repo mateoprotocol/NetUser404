@@ -8,11 +8,27 @@ id = 0
 
 if __name__ == "__main__":
 
+
+    #Obtención de urls
+    file_path = 'src/urls.txt'
+
+    with open(file_path, 'r') as file:
+        urls = file.readlines()
+
+   
+    urls = [url.strip() for url in urls]  # Eliminar los caracteres de nueva línea
+    i = 0 # variable de iteración para cada url
+
+    # Programación de registros
     hora_ = int(input("hora: "))
     minuto_ = int(input("minutos: "))
     hora_limite = datetime.now().replace(hour=hora_, minute=minuto_, second=0, microsecond=0)
 
     while datetime.now() < hora_limite:
+
+        if i >= len(urls): # reinicio de la lista de urls
+            i = 0
+
         print("*"*20)
         ## Identificación 
         interfaz, bssid = obtener_bssid()
@@ -32,7 +48,8 @@ if __name__ == "__main__":
                 ")
 
         if is_connected():
-            url= "https://es.wikipedia.org/wiki/Urano_(planeta)"
+            url= urls[i]
+            i+=1
             transferred, load = get_transferred_and_time(url)
             status = get_status_code(url)
             delay = ping('8.8.8.8',unit='ms')
@@ -51,8 +68,8 @@ if __name__ == "__main__":
             escritor = csv.writer(archivo)
             datos = [id, fecha, hora, sistema, mac_address, bssid, ip, url, status, load, transferred, delay]
             escritor.writerow(datos)
-            time.sleep(20)
-
+            
+        time.sleep(5)
         id +=1
     print("*"*20)
     print("Fin de la medición")

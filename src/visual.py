@@ -54,7 +54,7 @@ def graficar_tiempos(nombre_archivo):
                   ['400', status_count['400']]]
 
     # Establecer colores para cada fila de la tabla
-    colores_tabla = ['lightgreen', 'lightyellow', 'lightcoral']
+    colores_tabla = ['green', 'orange', 'red']
 
     # Crear la tabla y aplicar colores
     tabla = ax_dashboard.table(cellText=tabla_data, loc='center', cellLoc='center', colLabels=None)
@@ -63,7 +63,7 @@ def graficar_tiempos(nombre_archivo):
         tabla[(i+1, 1)].set_facecolor(color)  # Aplicar color a las celdas de cantidades
     tabla.auto_set_font_size(False)
     tabla.set_fontsize(12)
-    tabla.scale(1, 1.5)  # Ajustar el tamaño de la tabla
+    tabla.scale(0.7, 1.5)  # Ajustar el tamaño de la tabla
 
     # Título de la tabla más cerca
     ax_dashboard.text(0.5, 1.1, "Códigos de Estado", ha="center", fontsize=14, fontweight='bold')

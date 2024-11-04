@@ -5,3 +5,4 @@ src/__pycache__
 ejecutar.sh
 icon.png
 *db
+*json

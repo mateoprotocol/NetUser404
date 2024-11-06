@@ -2,7 +2,8 @@ from metrics import get_transferred_and_time, is_connected, get_status_code, pin
 from network_identify import obtener_bssid, obtener_mac, obtener_ip_activa, detectar_sistema_operativo
 from datetime import datetime
 import time
-import csv
+import json
+import os
 
 id = 0
 
@@ -23,6 +24,9 @@ if __name__ == "__main__":
     hora_ = int(input("hora: "))
     minuto_ = int(input("minutos: "))
     hora_limite = datetime.now().replace(hour=hora_, minute=minuto_, second=0, microsecond=0)
+
+    #datos json
+    nombre_archivo = 'datos.json'
 
     while datetime.now() < hora_limite:
 
@@ -64,10 +68,35 @@ if __name__ == "__main__":
             \nping:   {delay}\
             ")
         
-        with open('datos.csv', mode='a', newline='') as archivo:
-            escritor = csv.writer(archivo)
-            datos = [id, fecha, hora, sistema, mac_address, bssid, ip, url, status, load, transferred, delay]
-            escritor.writerow(datos)
+        datos = {
+            'id': id,
+            'fecha': fecha,
+            'hora': hora,
+            'sistema': sistema,
+            'MAC': mac_address,
+            'bssid': bssid,
+            'ip': ip,
+            'url': url,
+            'status': status,
+            'load': load,
+            'transferred': transferred,
+            'delay': delay
+        }
+        # Comprobar si el archivo ya existe
+        if os.path.exists(nombre_archivo):
+            # Si existe, leemos el contenido actual
+            with open(nombre_archivo, 'r') as archivo:
+                datos_existentes = json.load(archivo)
+        else:
+            # Si no existe, inicializamos una lista vacía
+            datos_existentes = []
+
+        # Agregar los nuevos datos
+        datos_existentes.append(datos)
+
+        # Escribir los datos de nuevo en el archivo
+        with open(nombre_archivo, 'w') as archivo:
+            json.dump(datos_existentes, archivo, indent=4)
             
         time.sleep(5)
         id +=1

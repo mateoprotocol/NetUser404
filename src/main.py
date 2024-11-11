@@ -102,3 +102,5 @@ if __name__ == "__main__":
         id +=1
     print("*"*20)
     print("Fin de la medición")
+
+# probando la conexión con github

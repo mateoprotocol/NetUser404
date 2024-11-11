@@ -2,12 +2,16 @@ import json
 from pymongo import MongoClient
 
 
-client = MongoClient("mongodb://localhost:27017")  # Cambia la URL según tu configuración
+client = MongoClient("mongodb://192.168.1.16:27017")  # Cambia la URL según tu configuración
+
+client.admin.command("ping")
+print("Connected successfully")
+
 db = client["Network_sensor"]
 collection = db["Metrics"]
 
 
-with open("/home/mateo/Desktop/Network Sensor/Network Monitoring Code/Network-Sensor/datos.json", "r") as file:
+with open("datos.json", "r") as file:
     datos_json = json.load(file)
 
 

@@ -6,11 +6,17 @@ import json
 import os
 import requests
 
+with open("config.json") as f:
+    config = json.load(f)
+
 # Constantes
-URL_API = 'http://192.168.1.14:8000/metrics'
-URLS_FILE = 'urls.txt'
+server_url = config["server_url"]
+server_port = config["server_port"]
+URLS_FILE = config["file_name_urls"]
+URL_API = f'http://{server_url}:{server_port}/metrics'
+print(URL_API)
 DATA_FILE = 'datos.json'
-PING_TARGET = '8.8.8.8'
+PING_TARGET = config["ping_target"]
 
 # Funciones auxiliares
 def get_urls(file_path):

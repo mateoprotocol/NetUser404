@@ -18,7 +18,7 @@ def obtener_ip_activa():
     try:
         s.connect(("8.8.8.8", 80))  # Conecta con DNS de Google
         ip = s.getsockname()[0]     # Obtiene la IP local de la interfaz que responde
-    except Exception as e:
+    except Exception:
         ip = "No active interfaces"
     finally:
         s.close()
@@ -100,7 +100,7 @@ def obtener_mac(interfaz=None):
                 mac = f.read().strip()
             return mac
         except FileNotFoundError:
-            return None
+            return 'None'
     elif sistema == "Windows":
 
         try:
@@ -116,10 +116,10 @@ def obtener_mac(interfaz=None):
             if mac:
                 return mac
             else:
-                return None
+                return 'None'
         except subprocess.CalledProcessError as e:
             print(f"Error al ejecutar el comando: {e}")
-            return None
+            return 'None'
   
  
 

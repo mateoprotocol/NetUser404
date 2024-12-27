@@ -4,8 +4,10 @@ from datetime import datetime
 import time
 import json
 import os
+import requests
 
 id = 0
+url_api = 'http://192.168.1.14:8000/metrics'
 
 if __name__ == "__main__":
 
@@ -42,15 +44,6 @@ if __name__ == "__main__":
         fecha = datetime.now().strftime("%Y-%m-%d")
         hora = hora_actual = datetime.now().strftime("%H:%M:%S")
 
-        print(f"id:    {id}\
-                \nfecha: {fecha}\
-                \nhora:  {hora}\
-                \nSO:    {sistema}\
-                \nMAC:   {mac_address}\
-                \nBSSID: {bssid}\
-                \nIP:    {ip}\
-                ")
-
         if is_connected():
             url= urls[i]
             i+=1
@@ -59,20 +52,12 @@ if __name__ == "__main__":
             delay = ping('8.8.8.8',unit='ms')
         else:
             print("No hay conexión a internet")
-
-
-        print(f"url:    {url}\
-            \ntransf: {transferred}\
-            \nload:   {load}\
-            \nstatus: {status}\
-            \nping:   {delay}\
-            ")
         
         datos = {
-            'id': id,
-            'fecha': fecha,
-            'hora': hora,
-            'sistema': sistema,
+            'id': str(id),
+            'date': fecha,
+            'hour': hora,
+            'system': sistema,
             'MAC': mac_address,
             'bssid': bssid,
             'ip': ip,
@@ -82,6 +67,9 @@ if __name__ == "__main__":
             'transferred': transferred,
             'delay': delay
         }
+
+        print(datos)
+
         # Comprobar si el archivo ya existe
         if os.path.exists(nombre_archivo):
             # Si existe, leemos el contenido actual
@@ -93,6 +81,10 @@ if __name__ == "__main__":
 
         # Agregar los nuevos datos
         datos_existentes.append(datos)
+
+        # Enviar los datos a la API
+        result = requests.post(url_api, json=datos)
+        print(result.status_code)
 
         # Escribir los datos de nuevo en el archivo
         with open(nombre_archivo, 'w') as archivo:

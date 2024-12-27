@@ -2,7 +2,7 @@ import subprocess
 import socket
 import platform
 
-def detectar_sistema_operativo():
+def detect_OS():
     
     sistema = platform.system()
     if sistema == "Linux":
@@ -10,10 +10,10 @@ def detectar_sistema_operativo():
     elif sistema == "Windows":
         return "Windows"
     else:
-        return None
+        return 'None'
 
 
-def obtener_ip_activa():
+def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(("8.8.8.8", 80))  # Conecta con DNS de Google
@@ -26,8 +26,8 @@ def obtener_ip_activa():
     return ip
 
 
-def obtener_bssid():
-    sistema = detectar_sistema_operativo()
+def get_bssid():
+    sistema = detect_OS()
     if sistema == "Linux":
         try:
             # Elimina OUTPUT de las demás interfaces
@@ -89,8 +89,8 @@ def obtener_bssid():
 
 
 
-def obtener_mac(interfaz=None):
-    sistema = detectar_sistema_operativo()
+def get_MAC(interfaz=None):
+    sistema = detect_OS()
     
     if sistema == "Linux":
         # Ubicación de la dirección MAC en el sistema de archivos de Linux
@@ -120,16 +120,13 @@ def obtener_mac(interfaz=None):
         except subprocess.CalledProcessError as e:
             print(f"Error al ejecutar el comando: {e}")
             return 'None'
-  
- 
-
-# Obtener el BSSID y la interfaz
-interfaz, bssid = obtener_bssid()
-mac_address = obtener_mac(interfaz)
-ip = obtener_ip_activa()
-sistema = detectar_sistema_operativo()
 
 if __name__ == "__main__":
+    # Obtener el BSSID y la interfaz
+    interfaz, bssid = get_bssid()
+    mac_address = get_MAC(interfaz)
+    ip = get_local_ip()
+    sistema = detect_OS()
     print(ip)
     print(bssid)
     print(mac_address)

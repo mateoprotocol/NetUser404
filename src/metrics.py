@@ -6,9 +6,9 @@ from ping3 import ping
 import requests
 import socket
 
-def is_connected():
+def is_connected(timeout=5):
     try:
-        socket.create_connection(("8.8.8.8", 53))
+        socket.create_connection(("8.8.8.8", 53), timeout=timeout)
         return True
     except OSError:
         return False  

@@ -14,7 +14,6 @@ server_url = config["server_url"]
 server_port = config["server_port"]
 URLS_FILE = config["file_name_urls"]
 URL_API = f'http://{server_url}:{server_port}/metrics'
-print(URL_API)
 DATA_FILE = 'datos.json'
 PING_TARGET = config["ping_target"]
 
@@ -79,13 +78,32 @@ def save_data(datos, file_path):
     with open(file_path, 'w') as archivo:
         json.dump(datos_existentes, archivo, indent=4)
 
-def send_to_api(datos, url_api):
-    """Envía los datos a una API REST."""
+def send_to_api(datos, url_api, timeout=10):
+    """
+    Envía los datos a una API REST.
+    
+    Args:
+        datos (dict): Datos a enviar en formato JSON.
+        url_api (str): URL de la API REST.
+        timeout (int, opcional): Tiempo máximo de espera para la respuesta en segundos. Por defecto es 10.
+
+    Returns:
+        dict: Un diccionario con el resultado del envío.
+    """
     try:
-        response = requests.post(url_api, json=datos)
-        print(f"Envío a API: {response.status_code}")
-    except requests.RequestException as e:
-        print(f"Error al enviar los datos a la API: {e}")
+        response = requests.post(url_api, json=datos, timeout=timeout)
+        response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
+        return {
+            "success": True,
+            "status_code": response.status_code,
+            "data": response.json() if response.content else None  # Intenta parsear la respuesta si hay contenido
+        }
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "Timeout", "message": "El tiempo de espera se agotó."}
+    except requests.exceptions.HTTPError as e:
+        return {"success": False, "error": "HTTPError", "message": str(e), "status_code": response.status_code}
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error": "RequestException", "message": str(e)}
 
 # Programa principal
 if __name__ == "__main__":

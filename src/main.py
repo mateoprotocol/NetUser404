@@ -19,11 +19,16 @@ PING_TARGET = config["ping_target"]
 
 # Funciones auxiliares
 def get_urls(file_path):
-    """Carga y limpia las URLs desde un archivo."""
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe.")
-    with open(file_path, 'r') as file:
-        return [url.strip() for url in file.readlines()]
+    
+    with open(file_path, 'r', encoding='utf-8') as file:
+        urls = [url.strip() for url in file if url.strip()]
+    
+    if not urls:
+        raise ValueError(f"El archivo {file_path} está vacío o no contiene URLs válidas.")
+    
+    return urls
 
 def get_deadline():
     """Solicita al usuario la hora y minuto límite."""

@@ -130,8 +130,8 @@ if __name__ == "__main__":
             print(datos)
 
             save_data(datos, DATA_FILE)
-            send_to_api(datos, URL_API)
-
+            response_api = send_to_api(datos, URL_API)
+            print(response_api)
             time.sleep(5)  # Esperar antes de la siguiente iteración
             id += 1
 

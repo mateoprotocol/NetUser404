@@ -1,4 +1,4 @@
-from metrics import get_transferred_and_time, is_connected, get_status_code, ping
+from metrics import get_transferred_and_time, is_connected, get_status_code, average_ping
 from network_identify import get_bssid, get_MAC, get_local_ip, detect_OS
 from datetime import datetime
 import time
@@ -52,7 +52,7 @@ def get_metrics_and_id(url, id):
     if is_connected():
         transferred, load = get_transferred_and_time(url)
         status = get_status_code(url)
-        delay = ping(PING_TARGET, unit='ms')
+        delay = average_ping(PING_TARGET)
     else:
         print("No hay conexión a internet.")
         transferred, load, status, delay = 0.0, 0.0, 0, 0.0

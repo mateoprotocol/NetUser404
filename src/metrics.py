@@ -6,6 +6,25 @@ from ping3 import ping
 import requests
 import socket
 
+def average_ping(host, count=5, timeout=1):
+    """
+    docstring
+    """
+    times = []
+    for _ in range(count):
+        try:
+            response_time = ping(host, timeout=timeout, unit="ms")  # Tiempo en milisegundos
+            if response_time is not None:
+                times.append(response_time)
+        except Exception as e:
+            print(f"Error en el ping: {e}")
+
+    if times:
+        return sum(times) / len(times)  # Promedio de los tiempos exitosos
+    else:
+        return None  # Si todos los pings fallaron
+
+
 def is_connected(timeout=5):
     try:
         socket.create_connection(("8.8.8.8", 53), timeout=timeout)
@@ -74,7 +93,7 @@ if __name__ == "__main__":
 
         status = get_status_code(url)
         transferred, load_time = get_transferred_and_time(url)
-        delay = ping(url2,unit='ms')
+        delay = average_ping(url2)
 
         print(f"Status code: {status}\nTransferred: {transferred:.2f} kB\nLoad time: {load_time:.2f} ms\ndelay: {delay}")
     else:

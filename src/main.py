@@ -5,6 +5,16 @@ import time
 import json
 import os
 import requests
+from dotenv import load_dotenv
+
+load_dotenv()  # Carga las variables del archivo .env
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY no está configurada")
+
+headers = {
+    "Authorization": SECRET_KEY
+}
 
 with open("config.json") as f:
     config = json.load(f)
@@ -96,7 +106,7 @@ def send_to_api(datos, url_api, timeout=10):
         dict: Un diccionario con el resultado del envío.
     """
     try:
-        response = requests.post(url_api, json=datos, timeout=timeout)
+        response = requests.post(url_api, json=datos, timeout=timeout, headers=headers)
         response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
         return {
             "success": True,

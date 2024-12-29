@@ -8,7 +8,17 @@ import requests
 from dotenv import load_dotenv
 
 load_dotenv()  # Carga las variables del archivo .env
+
+# Constantes
+server_url = os.getenv("SERVER_URL")
+server_port = os.getenv("SERVER_PORT")
+URLS_FILE = os.getenv("FILE_URLS")
+PING_TARGET = os.getenv("PING_TARGET")
 SECRET_KEY = os.getenv("SECRET_KEY")
+
+URL_API = f'http://{server_url}:{server_port}/metrics'
+DATA_FILE = 'datos.json'
+
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY no está configurada")
 
@@ -16,16 +26,6 @@ headers = {
     "Authorization": SECRET_KEY
 }
 
-with open("config.json") as f:
-    config = json.load(f)
-
-# Constantes
-server_url = config["server_url"]
-server_port = config["server_port"]
-URLS_FILE = config["file_name_urls"]
-URL_API = f'http://{server_url}:{server_port}/metrics'
-DATA_FILE = 'datos.json'
-PING_TARGET = config["ping_target"]
 
 # Funciones auxiliares
 def get_urls(file_path):
@@ -137,8 +137,7 @@ if __name__ == "__main__":
 
             print("*" * 20)
             datos = get_metrics_and_id(url, id)
-            print(datos)
-
+            
             save_data(datos, DATA_FILE)
             response_api = send_to_api(datos, URL_API)
             print(response_api)

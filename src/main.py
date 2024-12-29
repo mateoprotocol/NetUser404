@@ -1,4 +1,4 @@
-from metrics import get_transferred_and_time, is_connected, get_status_code, average_ping
+from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping
 from network_identify import get_bssid, get_MAC, get_local_ip, detect_OS
 from datetime import datetime
 import time
@@ -139,3 +139,5 @@ if __name__ == "__main__":
         print("Fin de la medición.")
     except Exception as e:
         print(f"Error en la ejecución del programa: {e}")
+    finally:
+        close_browser()

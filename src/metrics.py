@@ -32,29 +32,34 @@ def is_connected(timeout=5):
     except OSError:
         return False  
 
-def start_browser(url):
-    # Inicializar el navegador con opciones
-    options = webdriver.ChromeOptions()
-    options.add_argument('--headless')  # Modo headless (sin interfaz gráfica)
-    options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--incognito')
-    options.add_argument('--disable-cache')
-    options.add_argument('--disk-cache-size=0')
+_browser_instance = None
 
-    # Iniciar el navegador
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+def start_browser():
+    """Inicializa o reutiliza una instancia del navegador."""
+    global _browser_instance
+    if _browser_instance is None:
+        options = webdriver.ChromeOptions()
+        options.add_argument('--headless')  # Modo headless (sin interfaz gráfica)
+        options.add_argument('--no-sandbox')
+        options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--incognito')
+        options.add_argument('--disable-cache')
+        options.add_argument('--disk-cache-size=0')
+        _browser_instance = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    return _browser_instance
 
-    # Ir a la página deseada y esperar hasta que se complete la carga
-    driver.get(url)
-    driver.implicitly_wait(20)  # Espera hasta 10 segundos por la carga de recursos si es necesario
-    time.sleep(2)
-
-    return driver
-
+def close_browser():
+    """Cierra la instancia del navegador si está abierta."""
+    global _browser_instance
+    if _browser_instance is not None:
+        _browser_instance.quit()
+        _browser_instance = None
 
 def get_transferred_and_time(url):
-    driver = start_browser(url)
+    """Obtiene los datos transferidos y el tiempo de carga de una URL."""
+    driver = start_browser()  # Reutiliza la instancia del navegador
+    driver.get(url)
+    time.sleep(2)  # Da tiempo para que se carguen los recursos
 
     # Obtener datos transferidos
     transferred_kb = driver.execute_script("""
@@ -75,7 +80,6 @@ def get_transferred_and_time(url):
         return entry.loadEventEnd - entry.startTime;  // Tiempo de carga en ms
     """)
 
-    driver.quit()
     return transferred_kb, load_time
 
 

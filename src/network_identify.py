@@ -102,17 +102,19 @@ def get_MAC(interfaz=None):
         except FileNotFoundError:
             return 'None'
     elif sistema == "Windows":
-
         try:
+            # Ejecuta el comando para obtener información de las interfaces de red
             resultado = subprocess.check_output(
                 ["netsh", "wlan", "show", "interfaces"],
                 stderr=subprocess.DEVNULL,
                 encoding='latin-1'
             )
             mac = None
+            # Busca la línea que contiene la dirección MAC
             for linea in resultado.split("\n"):
-                if "Direcci¢n" in linea:
+                if any(keyword in linea for keyword in ["Direcci¢n", "Physical address"]):
                     mac = ":".join(linea.split(":")[1:]).strip()
+                    break
             if mac:
                 return mac
             else:
@@ -127,9 +129,10 @@ if __name__ == "__main__":
     mac_address = get_MAC(interfaz)
     ip = get_local_ip()
     sistema = detect_OS()
-    print(ip)
-    print(bssid)
-    print(mac_address)
-    print(sistema)
-
+    print(f"Sistema: {sistema}")
+    print(f"Interfaz: {interfaz}")
+    print(f"BSSID: {bssid}")
+    print(f"MAC Address: {mac_address}")
+    print(f"IP Address: {ip}")
+    
 

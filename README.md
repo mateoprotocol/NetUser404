@@ -17,5 +17,4 @@ Este archivo contiene funciones que retornan la dirección privada y el BSSID de
 ## Dispositivo de mediciones
 
 * Chrome
-* Python3.10 o superior
-* Instalar los paquetes del archivo requirements.txt
+* Python 3.8+

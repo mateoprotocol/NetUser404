@@ -36,7 +36,7 @@ def get_bssid():
             interfaces = re.findall(r"Interface (\S+)", result.stdout)
 
             if not interfaces:
-                return None, "No se encontraron interfaces WiFi"
+                return "No se encontraron interfaces WiFi", None
 
             for interface in interfaces:
                 # Verifica si la interfaz está conectada
@@ -45,12 +45,12 @@ def get_bssid():
                     # Extrae el BSSID
                     match = re.search(r"Connected to (\S+)", link_result.stdout)
                     if match:
-                        return match.group(1), interface  # Retorna (BSSID, Interfaz)
+                        return interface, match.group(1)  # Retorna (BSSID, Interfaz)
 
-            return None, "No conectado a ninguna red WiFi"
+            return "No conectado a ninguna red WiFi", None
 
         except Exception as e:
-            return None, f"Error: {str(e)}"
+            return f"Error: {str(e)}", None
         
     elif sistema == "Windows":
         try:
@@ -122,7 +122,7 @@ def get_MAC(interfaz=None):
 
 if __name__ == "__main__":
     # Obtener el BSSID y la interfaz
-    bssid, interfaz = get_bssid()
+    interfaz, bssid = get_bssid()
     mac_address = get_MAC(interfaz)
     ip = get_local_ip()
     sistema = detect_OS()

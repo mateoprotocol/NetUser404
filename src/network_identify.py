@@ -1,6 +1,7 @@
 import subprocess
 import socket
 import platform
+import re
 
 def detect_OS():
     
@@ -30,30 +31,26 @@ def get_bssid():
     sistema = detect_OS()
     if sistema == "Linux":
         try:
-            # Elimina OUTPUT de las demás interfaces
-            resultado = subprocess.check_output(["iwconfig"], stderr=subprocess.DEVNULL, encoding='utf-8')
+            # Obtiene la interfaz WiFi activa
+            result = subprocess.run(["iw", "dev"], capture_output=True, text=True)
+            interfaces = re.findall(r"Interface (\S+)", result.stdout)
 
-            interfaz_activa = None
-            bssid = None
+            if not interfaces:
+                return None, "No se encontraron interfaces WiFi"
 
-            # Analiza la salida de iwconfig línea por línea
-            for linea in resultado.split("\n"):
-                # Detecta la interfaz inalámbrica
-                if "IEEE 802.11" in linea:
-                    # Extrae el nombre de la interfaz (antes del primer espacio)
-                    interfaz_activa = linea.split()[0]
-                # Busca la línea que contiene el BSSID (Access Point)
-                if "Access Point" in linea and interfaz_activa:
-                    bssid = linea.split("Access Point: ")[1].strip()
-                    break 
+            for interface in interfaces:
+                # Verifica si la interfaz está conectada
+                link_result = subprocess.run(["iw", "dev", interface, "link"], capture_output=True, text=True)
+                if "Connected to" in link_result.stdout:
+                    # Extrae el BSSID
+                    match = re.search(r"Connected to (\S+)", link_result.stdout)
+                    if match:
+                        return match.group(1), interface  # Retorna (BSSID, Interfaz)
 
-            if interfaz_activa and bssid:
-                return interfaz_activa, bssid
-            else:
-                return None, None
+            return None, "No conectado a ninguna red WiFi"
 
-        except subprocess.CalledProcessError:
-            return None, None
+        except Exception as e:
+            return None, f"Error: {str(e)}"
         
     elif sistema == "Windows":
         try:
@@ -125,12 +122,11 @@ def get_MAC(interfaz=None):
 
 if __name__ == "__main__":
     # Obtener el BSSID y la interfaz
-    interfaz, bssid = get_bssid()
+    bssid, interfaz = get_bssid()
     mac_address = get_MAC(interfaz)
     ip = get_local_ip()
     sistema = detect_OS()
-    print(f"Sistema: {sistema}")
-    print(f"Interfaz: {interfaz}")
+    print(f"Sistema: {sistema}") 
     print(f"BSSID: {bssid}")
     print(f"MAC Address: {mac_address}")
     print(f"IP Address: {ip}")

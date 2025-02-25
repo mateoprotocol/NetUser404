@@ -44,8 +44,9 @@ def get_bssid():
                 if "Connected to" in link_result.stdout:
                     # Extrae el BSSID
                     match = re.search(r"Connected to (\S+)", link_result.stdout)
+                    match_ssid = re.search(r"SSID:\s(.+)", link_result.stdout)
                     if match:
-                        return interface, match.group(1)  # Retorna (BSSID, Interfaz)
+                        return interface, f"{match_ssid.group(1)} ({match.group(1)})"   
 
             return "No conectado a ninguna red WiFi", None
 

@@ -1,4 +1,4 @@
-from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping
+from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping, is_connected_to_network
 from network_identify import get_bssid, get_MAC, get_local_ip, detect_OS
 from datetime import datetime
 import time
@@ -17,7 +17,7 @@ PING_TARGET = os.getenv("PING_TARGET")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 URL_API = f'http://{server_url}:{server_port}/metrics'
-DATA_FILE = 'datos.json'
+DATA_FILE = './datos.json'
 
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY no está configurada")
@@ -52,20 +52,33 @@ def get_deadline():
 
 def get_metrics_and_id(url, id):
     """Obtiene las métricas de red y sistema."""
-    interfaz, bssid = get_bssid()
-    mac_address = get_MAC(interfaz)
-    ip = get_local_ip()
+
+    
     sistema = detect_OS()
     fecha = datetime.now().strftime("%Y-%m-%d")
     hora = datetime.now().strftime("%H:%M:%S")
+    mac_address = "00:00:00:00:00:00"
+    bssid = "00:00:00:00:00:00"
+    ip = "N/A"
+    url = "N/A"
+    transferred, load, status, delay = 0.0, 0.0, -1, 9999.99
 
-    if is_connected():
-        transferred, load = get_transferred_and_time(url)
-        status = get_status_code(url)
-        delay = average_ping(PING_TARGET)
+    if is_connected_to_network():
+
+        if is_connected():
+            interfaz, bssid = get_bssid()
+            mac_address = get_MAC(interfaz)
+            ip = get_local_ip()
+            transferred, load = get_transferred_and_time(url)
+            status = get_status_code(url)
+            delay = average_ping(PING_TARGET)
+        else:
+            print("No hay conexión a internet.")
+            transferred, load, status, delay = 0.0, 0.0, -1, 9999.99
+
     else:
-        print("No hay conexión a internet.")
-        transferred, load, status, delay = 0.0, 0.0, 0, 0.0
+        print("No hay conexión a la red")
+
 
     return {
         'id': str(id),
@@ -137,9 +150,13 @@ if __name__ == "__main__":
 
             print("*" * 20)
             datos = get_metrics_and_id(url, id)
+            if is_connected_to_network():
+                response_api = send_to_api(datos, URL_API)
+                if not response_api["success"]:
+                    save_data(datos, DATA_FILE)
+            else:
+                save_data(datos, DATA_FILE)
             
-            save_data(datos, DATA_FILE)
-            response_api = send_to_api(datos, URL_API)
             print(response_api)
             time.sleep(5)  # Esperar antes de la siguiente iteración
             id += 1

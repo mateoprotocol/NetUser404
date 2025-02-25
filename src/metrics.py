@@ -5,6 +5,7 @@ import time
 from ping3 import ping
 import requests
 import socket
+import psutil
 
 def average_ping(host, count=5, timeout=1):
     """
@@ -31,6 +32,20 @@ def is_connected(timeout=5):
         return True
     except OSError:
         return False  
+
+def is_connected_to_network():
+    """Verifica si el dispositivo está conectado a una red local (WiFi o cable)."""
+    interfaces = psutil.net_if_addrs()
+    
+    for interfaz, direcciones in interfaces.items():
+        for direccion in direcciones:
+            if direccion.family == 2 and not direccion.address.startswith("127."):  
+                # Family 2 = IPv4, descartamos localhost (127.x.x.x)
+                print(f"✅ Conectado a la red ({interfaz}: {direccion.address})")
+                return True
+    
+    print("❌ No hay conexión a la red")
+    return False    
 
 _browser_instance = None
 
@@ -90,6 +105,8 @@ def get_status_code(url):
     return r.status_code
 
 if __name__ == "__main__":
+    
+    is_connected_to_network()
 
     if is_connected():
         url = 'https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos'

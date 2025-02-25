@@ -60,7 +60,6 @@ def get_metrics_and_id(url, id):
     mac_address = "00:00:00:00:00:00"
     bssid = "00:00:00:00:00:00"
     ip = "N/A"
-    url = "N/A"
     transferred, load, status, delay = 0.0, 0.0, -1, 9999.99
 
     if is_connected_to_network():

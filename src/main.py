@@ -1,5 +1,5 @@
 from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping, is_connected_to_network
-from network_identify import get_bssid, get_MAC, get_local_ip, detect_OS
+from identify import get_os, get_net_interface, get_mac, get_local_ip, get_bssid
 from datetime import datetime
 import time
 import json
@@ -54,7 +54,7 @@ def get_metrics_and_id(url, id):
     """Obtiene las métricas de red y sistema."""
 
     
-    sistema = detect_OS()
+    sistema = get_os()
     fecha = datetime.now().strftime("%Y-%m-%d")
     hora = datetime.now().strftime("%H:%M:%S")
     mac_address = "00:00:00:00:00:00"
@@ -65,8 +65,9 @@ def get_metrics_and_id(url, id):
     if is_connected_to_network():
 
         if is_connected():
-            interfaz, bssid = get_bssid()
-            mac_address = get_MAC(interfaz)
+            interfaz = get_net_interface()
+            bssid = get_bssid(interfaz)
+            mac_address = get_mac(interfaz)
             ip = get_local_ip()
             transferred, load = get_transferred_and_time(url)
             status = get_status_code(url)

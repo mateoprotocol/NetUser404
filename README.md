@@ -18,5 +18,6 @@ Este archivo contiene funciones que retornan la dirección privada y el BSSID de
 
 * Chrome
 * Python 3.8+
+* iw
 
 PROBANDO

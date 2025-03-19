@@ -195,16 +195,17 @@ if __name__ == "__main__":
                 'load': tiempo_carga,
                 'transferred': datos_transferidos,
                 'delay': latencia,
-                'download': tiempo_descarga
+                'download': tiempo_descarga,
+                'comment': comentario
             }
-            print(datos)
+            
             datos_info = send_data(datos, URL_API)
             print(datos_info)
             if datos_info["success"]:
                 print("Envío exitoso de datos")
             else:
                 print("No fue posible enviar los datos")
-                comentario += "[No fue posible enviar el registro]"
+                datos["comment"] += "[No fue posible enviar el registro]"
                 save_local_data(datos,DATA_FILE)
             print("*" * 20)
 

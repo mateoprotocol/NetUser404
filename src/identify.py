@@ -7,7 +7,7 @@ def get_os():
         return platform.system()
     except:
         print("Error obteniendo sistema operativo")
-        return "Error obteniendo sistema operativo"
+        return "N/A"
 
 def get_net_interface(os="Linux"):
     if os=="Linux":
@@ -17,7 +17,7 @@ def get_net_interface(os="Linux"):
             return interface[0]
         except:
             print("Error obteniendo interfaces")
-            return "Error obteniendo interfaces"
+            return "N/A"
 
 def get_mac(interface, os="Linux"):
     if os=="Linux":
@@ -26,7 +26,8 @@ def get_mac(interface, os="Linux"):
             mac = re.findall(r"link/ether (\S+)", result.stdout)
             return mac[0]
         except:
-            return "Error obteniendo mac"
+            print("Error obteniendo mac")
+            return "N/A"
     
 def get_local_ip(os="Linux"):
     if os=="Linux":
@@ -36,7 +37,7 @@ def get_local_ip(os="Linux"):
             return ip[0]
         except:
             print("Error al obtener la ip")
-            return "Error al obtener la ip"
+            return "N/A"
     
 def get_bssid(interface, os="Linux"):
     if os=="Linux":
@@ -48,7 +49,7 @@ def get_bssid(interface, os="Linux"):
             return f"{ssid[0]} ({bssid[0]})"
         except:
             print("Error al obtener bssid y ssid")
-            return "Error al obtener bssid y ssid"
+            return "N/A"
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping, is_connected_to_network
+from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping, is_connected_to_network, download_time
 from identify import get_os, get_net_interface, get_mac, get_local_ip, get_bssid
 from datetime import datetime
 import time
@@ -50,51 +50,6 @@ def get_deadline():
         except ValueError:
             print("Por favor, ingresa valores válidos para la hora y el minuto.")
 
-def get_metrics_and_id(url, id):
-    """Obtiene las métricas de red y sistema."""
-
-    
-    sistema = get_os()
-    fecha = datetime.now().strftime("%Y-%m-%d")
-    hora = datetime.now().strftime("%H:%M:%S")
-    mac_address = "00:00:00:00:00:00"
-    bssid = "00:00:00:00:00:00"
-    ip = "N/A"
-    transferred, load, status, delay = 0.0, 0.0, -1, 9999.99
-
-    if is_connected_to_network():
-
-        if is_connected():
-            interfaz = get_net_interface()
-            bssid = get_bssid(interfaz)
-            mac_address = get_mac(interfaz)
-            ip = get_local_ip()
-            transferred, load = get_transferred_and_time(url)
-            status = get_status_code(url)
-            delay = average_ping(PING_TARGET)
-        else:
-            print("No hay conexión a internet.")
-            transferred, load, status, delay = 0.0, 0.0, -1, 9999.99
-
-    else:
-        print("No hay conexión a la red")
-
-
-    return {
-        'id': str(id),
-        'date': fecha,
-        'hour': hora,
-        'system': sistema,
-        'MAC': mac_address,
-        'bssid': bssid,
-        'ip': ip,
-        'url': url,
-        'status': status,
-        'load': load,
-        'transferred': transferred,
-        'delay': delay
-    }
-
 def save_data(datos, file_path):
     """Guarda los datos localmente en un archivo JSON."""
     if os.path.exists(file_path):
@@ -133,36 +88,128 @@ def send_to_api(datos, url_api, timeout=10):
     except requests.exceptions.RequestException as e:
         return {"success": False, "error": "RequestException", "message": str(e)}
 
+def send_local_data(api_url,file_path):
+    if os.path.exists(file_path):
+        try:
+            # Cargar los datos desde el archivo JSON
+            with open(file_path, "r") as file:
+                data = json.load(file)
+
+            # Enviar los datos a la API
+            response = requests.post(api_url, json=data)
+
+            # Verificar si la solicitud fue exitosa
+            if response.status_code == 200:
+                os.remove(file_path)  # Eliminar el archivo después de enviarlo
+                return "✅ Datos enviados y archivo eliminado con éxito."
+            else:
+                return f"❌ Error al enviar datos: {response.status_code} - {response.text}"
+
+        except Exception as e:
+            return f"⚠️ Ocurrió un error: {e}"
+    else:
+        return "📂 No hay archivo 'datos.json' para enviar."
+
+def send_data(datos, url_api, timeout=10):
+    try:
+        response = requests.post(url_api, json=datos, timeout=timeout, headers=headers)
+        response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
+        return {
+            "success": True,
+            "status_code": response.status_code,
+            "data": response.json() if response.content else None  # Intenta parsear la respuesta si hay contenido
+        }
+    except requests.exceptions.Timeout:
+        return {"success": False, "error": "Timeout", "message": "El tiempo de espera se agotó."}
+    except requests.exceptions.HTTPError as e:
+        return {"success": False, "error": "HTTPError", "message": str(e), "status_code": response.status_code}
+    except requests.exceptions.RequestException as e:
+        return {"success": False, "error": "RequestException", "message": str(e)}
+
+def save_local_data(datos,file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as archivo:
+            datos_existentes = json.load(archivo)
+    else:
+        datos_existentes = []
+    datos_existentes.append(datos)
+    with open(file_path, 'w') as archivo:
+        json.dump(datos_existentes, archivo, indent=4)
+
 # Programa principal
 if __name__ == "__main__":
     try:
-        urls = get_urls(URLS_FILE)
         deadline = get_deadline()
-        id = 0
-        i = 0
+        urls = get_urls(URLS_FILE)
+        i=0
+        id=0
 
         while datetime.now() < deadline:
-            if i >= len(urls):  # Reinicio de la lista de URLs
+            fecha = datetime.now().strftime("%Y-%m-%d")
+            hora = datetime.now().strftime("%H:%M:%S")
+
+            if i >= len(urls):
                 i = 0
 
             url = urls[i]
             i += 1
-
-            print("*" * 20)
-            datos = get_metrics_and_id(url, id)
-            if is_connected_to_network():
-                response_api = send_to_api(datos, URL_API)
-                if not response_api["success"]:
-                    save_data(datos, DATA_FILE)
-            else:
-                save_data(datos, DATA_FILE)
+            id +=1
+            OS = get_os()
+            interfaz = get_net_interface()
+            mac = get_mac(interfaz)
+            comentario = ""
             
-            print(response_api)
-            time.sleep(5)  # Esperar antes de la siguiente iteración
-            id += 1
+            if is_connected_to_network():
+                bssid = get_bssid(interfaz)
+                ip = get_local_ip()
+            else:
+                comentario = "[No hay acceso a la red]"
 
-        print("*" * 20)
+            if os.path.exists(DATA_FILE):
+                send_local_data(f"{URL_API}/datos",DATA_FILE)
+            
+            if is_connected():
+                datos_transferidos, tiempo_carga = get_transferred_and_time(url)
+                codigo_estado = get_status_code(url)
+                latencia = average_ping(PING_TARGET)
+            else:
+                comentario += "[No conexión a internet]"
+                datos_transferidos = 0
+                tiempo_carga = 9999.99
+                codigo_estado = -1
+                latencia = 9999.99
+                url = "N/A"
+
+            tiempo_descarga = download_time()
+
+            datos = {
+                'id': str(id),
+                'date': fecha,
+                'hour': hora,
+                'system': OS,
+                'MAC': mac,
+                'bssid': bssid,
+                'ip': ip,
+                'url': url,
+                'status': codigo_estado,
+                'load': tiempo_carga,
+                'transferred': datos_transferidos,
+                'delay': latencia,
+                'download': tiempo_descarga
+            }
+            print(datos)
+            datos_info = send_data(datos, URL_API)
+            print(datos_info)
+            if datos_info["success"]:
+                print("Envío exitoso de datos")
+            else:
+                print("No fue posible enviar los datos")
+                comentario += "[No fue posible enviar el registro]"
+                save_local_data(datos,DATA_FILE)
+            print("*" * 20)
+
         print("Fin de la medición.")
+
     except Exception as e:
         print(f"Error en la ejecución del programa: {e}")
     finally:

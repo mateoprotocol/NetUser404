@@ -29,8 +29,6 @@ def download_binary_file(url, filename="10MB.bin"):
         # Verifica si el archivo se descargó correctamente
         if os.path.exists(filename):
             download_time = end_time - start_time
-            print(f"Status code: 200 for: {filename}")
-            print(f"Tiempo de descarga: {download_time:.2f} segundos")
             return filename, download_time
         else:
             print("La descarga falló: el archivo no se creó.")
@@ -92,10 +90,10 @@ def is_connected_to_network():
         for direccion in direcciones:
             if direccion.family == 2 and not direccion.address.startswith("127."):  
                 # Family 2 = IPv4, descartamos localhost (127.x.x.x)
-                print(f"✅ Conectado a la red ({interfaz}: {direccion.address})")
+                print(f"Conectado a la red ({interfaz}: {direccion.address})")
                 return True
     
-    print("❌ No hay conexión a la red")
+    print("No hay conexión a la red")
     return False    
 
 _browser_instance = None

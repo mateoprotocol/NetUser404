@@ -62,17 +62,6 @@ def save_data(datos, file_path):
         json.dump(datos_existentes, archivo, indent=4)
 
 def send_to_api(datos, url_api, timeout=10):
-    """
-    Envía los datos a una API REST.
-    
-    Args:
-        datos (dict): Datos a enviar en formato JSON.
-        url_api (str): URL de la API REST.
-        timeout (int, opcional): Tiempo máximo de espera para la respuesta en segundos. Por defecto es 10.
-
-    Returns:
-        dict: Un diccionario con el resultado del envío.
-    """
     try:
         response = requests.post(url_api, json=datos, timeout=timeout, headers=headers)
         response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
@@ -101,14 +90,14 @@ def send_local_data(api_url,file_path):
             # Verificar si la solicitud fue exitosa
             if response.status_code == 200:
                 os.remove(file_path)  # Eliminar el archivo después de enviarlo
-                return "✅ Datos enviados y archivo eliminado con éxito."
+                return "Datos enviados y archivo eliminado con éxito."
             else:
-                return f"❌ Error al enviar datos: {response.status_code} - {response.text}"
+                return f"Error al enviar datos: {response.status_code} - {response.text}"
 
         except Exception as e:
-            return f"⚠️ Ocurrió un error: {e}"
+            return f"Ocurrió un error: {e}"
     else:
-        return "📂 No hay archivo 'datos.json' para enviar."
+        return "No hay archivo 'datos.json' para enviar."
 
 def send_data(datos, url_api, timeout=10):
     try:

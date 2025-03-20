@@ -17,7 +17,7 @@ PING_TARGET = os.getenv("PING_TARGET")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 URL_API = f'http://{server_url}:{server_port}/metrics'
-DATA_FILE = './datos.json'
+DATA_FILE = 'datos.json'
 
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY no está configurada")
@@ -128,12 +128,13 @@ def save_local_data(datos,file_path):
 # Programa principal
 if __name__ == "__main__":
     try:
-        deadline = get_deadline()
+        #deadline = get_deadline()
         urls = get_urls(URLS_FILE)
         i=0
         id=0
 
-        while datetime.now() < deadline:
+        #while datetime.now() < deadline:
+        while True:
             fecha = datetime.now().strftime("%Y-%m-%d")
             hora = datetime.now().strftime("%H:%M:%S")
 

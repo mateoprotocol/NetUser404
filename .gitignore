@@ -8,3 +8,4 @@ icon.png
 *db
 *json
 .gitignore
+app.log

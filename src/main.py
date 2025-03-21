@@ -162,6 +162,7 @@ if __name__ == "__main__":
                 datos_transferidos, tiempo_carga = get_transferred_and_time(url)
                 codigo_estado = get_status_code(url)
                 latencia = average_ping(PING_TARGET)
+                tiempo_descarga = download_time()
             else:
                 comentario += "[No conexión a internet]"
                 datos_transferidos = 0
@@ -169,8 +170,9 @@ if __name__ == "__main__":
                 codigo_estado = -1
                 latencia = 9999.99
                 url = "N/A"
+                tiempo_descarga = 9999.99
 
-            tiempo_descarga = download_time()
+            
 
             datos = {
                 'id': str(id),

@@ -52,7 +52,7 @@ def download_time(url = "https://drive.google.com/file/d/1Qumkqt-oCvSSH7b1OuT3IU
     if downloaded_file:
         delete_file(downloaded_file)
     
-    return download_time
+    return ((10e6*8)/download_time)/1e6
 
 
 
@@ -154,7 +154,7 @@ def get_status_code(url):
     return r.status_code
 
 if __name__ == "__main__":
-    
+    print(download_time()) 
     is_connected_to_network()
 
     if is_connected():

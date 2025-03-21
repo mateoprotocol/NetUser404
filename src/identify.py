@@ -42,11 +42,17 @@ def get_local_ip(os="Linux"):
 def get_bssid(interface, os="Linux"):
     if os=="Linux":
         try:
-            result = subprocess.run(["iw","dev",interface,"link"], capture_output=True, text=True)
+            result = subprocess.run(["iw", "dev", interface, "link"], capture_output=True, text=True)
             bssid = re.findall(r"Connected to (\S+)", result.stdout)
-            ssid =  re.findall(r"SSID:\s(.+)", result.stdout)
+            ssid = re.findall(r"SSID:\s(.+)", result.stdout)
+            
+            if ssid and bssid:  # Verifica que ambos valores existen
+                ssid = ssid[0].encode().decode('unicode_escape').strip()  # Decodifica caracteres escapados
+                return f"{ssid} ({bssid[0]})"
+            
+            return "SSID/BSSID no encontrado"
 
-            return f"{ssid[0]} ({bssid[0]})"
+        
         except:
             print("Error al obtener bssid y ssid")
             return "N/A"

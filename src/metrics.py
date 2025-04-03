@@ -148,7 +148,7 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
             for recurso in recursos[tipo]:
                 tamano_total += recurso['tamano'] 
         
-        return tiempo_final, tamano_total
+        return tiempo_final, tamano_total, respuesta.status_code
 
     except Exception as e:
         print(f"Error general: {e}")
@@ -201,7 +201,6 @@ def download_time(url = "https://drive.google.com/file/d/1Qumkqt-oCvSSH7b1OuT3IU
     
     return ((10e6*8)/download_time)/1e6
 
-
 def average_ping(host, count=5, timeout=1):
     """
     docstring
@@ -243,15 +242,20 @@ def is_connected_to_network():
     return False    
 
 
-def get_status_code(url):
+def get_metrics(url):
+   
+   time = 9999.99
+   transferred = 0
+   status = -1
+   delay = 9999.99
 
-    r = requests.get(url)
+   time, transferred, status = descargar_recursos_paralelo(url_prueba)
+   download = download_time() 
+   delay = average_ping("8.8.8.8")
 
-    return r.status_code
-
+   return time, transferred, status, download, delay
 
 if __name__ == "__main__":
     url_prueba = "https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos"
-    time, transferred = descargar_recursos_paralelo(url_prueba)
-    print(time)
-    print(transferred)
+
+    print(get_metrics(url_prueba))

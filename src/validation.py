@@ -89,7 +89,7 @@ def save_local_data(datos,file_path):
     with open(file_path, 'w') as archivo:
         json.dump(datos_existentes, archivo, indent=4)
 
-def API_available(API_URL="http://127.0.0.1:8000/check-mongodb"):
+def API_available(API_URL):
     try:
         response = requests.get(API_URL, timeout=5)
         

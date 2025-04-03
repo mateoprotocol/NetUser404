@@ -58,7 +58,7 @@ def get_bssid(interface, os="Linux"):
             return "N/A"
 
 
-def indenfy():
+def identify():
     os= "N/A"
     interface= "N/A"
     mac = "N/A"
@@ -76,4 +76,4 @@ def indenfy():
 
 if __name__ == "__main__":
 
-    print(indenfy())
+    print(identify())

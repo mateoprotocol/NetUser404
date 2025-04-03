@@ -38,7 +38,7 @@ if __name__ == "__main__":
         if is_connected():
             registro["load"], registro["transferred"], registro["status"], registro["download"], registro["delay"]= get_metrics(urls[i])
 
-        if API_available(f"https://{server_url}:{server_port}/check-mongodb"):
+        if API_available(f"http://{server_url}:{server_port}/check-mongodb"):
             print(send_local_data(f"{URL_API}s", LOCAL_FILE))
             print(send_data(registro, URL_API))
         else:

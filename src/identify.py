@@ -58,10 +58,22 @@ def get_bssid(interface, os="Linux"):
             return "N/A"
 
 
+def indenfy():
+    os= "N/A"
+    interface= "N/A"
+    mac = "N/A"
+    ip= "N/A"
+    bssid= "N/A"
+
+
+    os= get_os()
+    interface= get_net_interface()
+    mac= get_mac(interface)
+    ip= get_local_ip()
+    bssid= get_bssid(interface)
+
+    return os, mac, ip, bssid
+
 if __name__ == "__main__":
-   print(get_os())
-   interface= get_net_interface()
-   print(interface)
-   print(get_mac(interface))
-   print(get_local_ip())
-   print(get_bssid(interface))
+
+    print(indenfy())

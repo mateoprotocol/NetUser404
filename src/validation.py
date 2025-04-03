@@ -37,7 +37,12 @@ def send_to_api(datos, url_api, timeout=10):
     except requests.exceptions.Timeout:
         return {"success": False, "error": "Timeout", "message": "El tiempo de espera se agotó."}
     except requests.exceptions.HTTPError as e:
-        return {"success": False, "error": "HTTPError", "message": str(e), "status_code": response.status_code}
+        return {
+            "success": False, 
+            "error": "HTTPError", 
+            "message": str(e),
+            "status_code": response.status_code if 'response' in locals() else None  # Verificación de existencia
+        }
     except requests.exceptions.RequestException as e:
         return {"success": False, "error": "RequestException", "message": str(e)}
 
@@ -90,6 +95,7 @@ def save_local_data(datos,file_path):
         json.dump(datos_existentes, archivo, indent=4)
 
 def API_available(API_URL):
+    resultado= None
     try:
         response = requests.get(API_URL, timeout=5)
         
@@ -112,7 +118,6 @@ def API_available(API_URL):
 
 
 registro = {
-    'id': "N/A",
     'date': "N/A",
     'hour': "N/A",
     'system': "N/A",

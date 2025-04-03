@@ -134,13 +134,13 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
         fin = time.time()
         tiempo_final = fin-inicio
         # Información general
-        print("\nResumen de Recursos Descargados:")
-        print(f"URL: {url}")
-        print(f"Tiempo total: {fin - inicio:.2f} segundos")
-        print(f"Tamaño HTML: {recursos['html']} bytes")
-        print(f"CSS: {len(recursos['css'])} archivos")
-        print(f"JavaScript: {len(recursos['js'])} archivos")
-        print(f"Imágenes: {len(recursos['imagenes'])} archivos")
+        #print("\nResumen de Recursos Descargados:")
+        #print(f"URL: {url}")
+        #print(f"Tiempo total: {fin - inicio:.2f} segundos")
+        #print(f"Tamaño HTML: {recursos['html']} bytes")
+        #print(f"CSS: {len(recursos['css'])} archivos")
+        #print(f"JavaScript: {len(recursos['js'])} archivos")
+        #print(f"Imágenes: {len(recursos['imagenes'])} archivos")
         
         tamano_total = recursos['html'] 
 
@@ -249,7 +249,7 @@ def get_metrics(url):
    status = -1
    delay = 9999.99
 
-   time, transferred, status = descargar_recursos_paralelo(url_prueba)
+   time, transferred, status = descargar_recursos_paralelo(url)
    download = download_time() 
    delay = average_ping("8.8.8.8")
 

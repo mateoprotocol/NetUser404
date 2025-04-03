@@ -1,5 +1,5 @@
-from metrics import close_browser, get_transferred_and_time, is_connected, get_status_code, average_ping, is_connected_to_network, download_time
-from identify import get_os, get_net_interface, get_mac, get_local_ip, get_bssid
+from metrics import  is_connected, is_connected_to_network, get_metrics 
+from identify import indenfy
 from datetime import datetime
 import time
 import json
@@ -16,8 +16,8 @@ URLS_FILE = os.getenv("FILE_URLS")
 PING_TARGET = os.getenv("PING_TARGET")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
-URL_API = f'http://{server_url}:{server_port}/metrics'
-DATA_FILE = 'datos.json'
+URL_API = f'http://{server_url}:{server_port}/metric'
+DATA_FILE = "datos.json"
 
 if not SECRET_KEY:
     raise ValueError("SECRET_KEY no está configurada")
@@ -125,85 +125,73 @@ def save_local_data(datos,file_path):
     with open(file_path, 'w') as archivo:
         json.dump(datos_existentes, archivo, indent=4)
 
+def API_available(API_URL="http://127.0.0.1:8000/check-mongodb"):
+    try:
+        response = requests.get(API_URL, timeout=5)
+        
+        if response.status_code == 200:
+            resultado = response.text.strip()  # Eliminamos posibles espacios en blanco
+            if resultado == "1":
+                print("La API está disponible (conectada a MongoDB).")
+            elif resultado == "0":
+                print("La API no está disponible (error al conectar a MongoDB).")
+            else:
+                print(f"Respuesta inesperada: {resultado}")
+        else:
+            print(f"Error al conectar a la API. Código de estado: {response.status_code}")
+    
+    except requests.RequestException as e:
+        print(f"Error al intentar conectar con la API: {e}")
+    
+    finally:
+        return resultado
+
+
+registro = {
+    'id': "N/A",
+    'date': "N/A",
+    'hour': "N/A",
+    'system': "N/A",
+    'MAC': "N/A",
+    'bssid': "N/A",
+    'ip': "N/A",
+    'url': "N/A",
+    'status': -1,
+    'load': 9999.99,
+    'transferred': 0,
+    'delay': 9999.99,
+    'download': 9999.99,
+    'comment': ""
+}
+
 # Programa principal
 if __name__ == "__main__":
-    try:
-        #deadline = get_deadline()
-        urls = get_urls(URLS_FILE)
-        i=0
-        id=0
 
-        #while datetime.now() < deadline:
-        while True:
-            fecha = datetime.now().strftime("%Y-%m-%d")
-            hora = datetime.now().strftime("%H:%M:%S")
+    urls = get_urls(URLS_FILE)
+    i=0
 
-            if i >= len(urls):
-                i = 0
+    while True:
+        registro["date"] = datetime.now().strftime("%Y-%m-%d")
+        registro["hour"] = datetime.now().strftime("%H:%M:%S")
 
-            url = urls[i]
-            i += 1
-            id +=1
-            OS = get_os()
-            interfaz = get_net_interface()
-            mac = get_mac(interfaz)
-            comentario = ""
-            
-            if is_connected_to_network():
-                bssid = get_bssid(interfaz)
-                ip = get_local_ip()
-            else:
-                comentario = "[No hay acceso a la red]"
+        i+=1
+        if i >= len(urls):
+            i = 0
+        registro["url"] = urls[i]
+        if is_connected_to_network():
+            registro["system"], registro["MAC"], registro["ip"], registro["bssid"] = indenfy()
+        else:
+            save_local_data(registro,DATA_FILE)
+            break
 
-            if os.path.exists(DATA_FILE):
-                send_local_data(f"{URL_API}/datos",DATA_FILE)
-            
-            if is_connected():
-                datos_transferidos, tiempo_carga = get_transferred_and_time(url)
-                codigo_estado = get_status_code(url)
-                latencia = average_ping(PING_TARGET)
-                tiempo_descarga = download_time()
-            else:
-                comentario += "[No conexión a internet]"
-                datos_transferidos = 0
-                tiempo_carga = 9999.99
-                codigo_estado = -1
-                latencia = 9999.99
-                url = "N/A"
-                tiempo_descarga = 9999.99
+        if is_connected():
+            registro["load"], registro["transferred"], registro["status"], registro["download"], registro["delay"]= get_metrics(urls[i])
 
-            
+        if API_available():
+            print(send_local_data(f"{URL_API}s", DATA_FILE))
+            print(send_data(registro, URL_API))
+        else:
+            save_local_data(registro, DATA_FILE)
+        
+        time.sleep(20)
 
-            datos = {
-                'id': str(id),
-                'date': fecha,
-                'hour': hora,
-                'system': OS,
-                'MAC': mac,
-                'bssid': bssid,
-                'ip': ip,
-                'url': url,
-                'status': codigo_estado,
-                'load': tiempo_carga,
-                'transferred': datos_transferidos,
-                'delay': latencia,
-                'download': tiempo_descarga,
-                'comment': comentario
-            }
-            
-            datos_info = send_data(datos, URL_API)
-            print(datos_info)
-            if datos_info["success"]:
-                print("Envío exitoso de datos")
-            else:
-                print("No fue posible enviar los datos")
-                datos["comment"] += "[No fue posible enviar el registro]"
-                save_local_data(datos,DATA_FILE)
-            print("*" * 20)
-
-        print("Fin de la medición.")
-
-    except Exception as e:
-        print(f"Error en la ejecución del programa: {e}")
-    finally:
-        close_browser()

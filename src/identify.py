@@ -1,6 +1,7 @@
 import subprocess
 import platform
 import re
+from validation import registro
 
 def get_os():
     try:
@@ -20,6 +21,7 @@ def get_net_interface(os="Linux"):
             if interface[0] in valid_interface:
                 return interface[0]
             else:
+                registro["comment"] += "[Interfaz de red invalida]"
                 return "No hay interfaz valida"
         except:
             print("Error obteniendo interfaces")
@@ -56,7 +58,7 @@ def get_bssid(interface, os="Linux"):
                 ssid = ssid[0].encode().decode('unicode_escape').strip()  # Decodifica caracteres escapados
                 return f"{ssid} ({bssid[0]})"
             
-            return "SSID/BSSID no encontrado"
+            return "N/A"
 
         
         except:

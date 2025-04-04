@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import concurrent.futures
 from validation import registro
+import shutil
  
 def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
     # Iniciar sesión para mantener cookies
@@ -148,13 +149,14 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
         for tipo in ['css', 'js', 'imagenes', 'otros']:
             for recurso in recursos[tipo]:
                 tamano_total += recurso['tamano'] 
-        
+
         return tiempo_final, tamano_total, respuesta.status_code
 
     except Exception as e:
         print(f"Error general: {e}")
         return None
-
+    finally:
+        shutil.rmtree(nombre_dominio)
 
 def download_binary_file(url, filename="10MB.bin"):
     try:

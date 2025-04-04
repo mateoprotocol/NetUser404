@@ -18,6 +18,14 @@ registro = {
     'comment': ""
 }
 
+def reset_registro():
+    registro["status"] = -1
+    registro["load"] = 9999.99
+    registro["transferred"] = 0
+    registro["delay"] = 9999.99
+    registro["download"] = 9999.99
+    registro["comment"] = ""
+
 def get_urls(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe.")
@@ -119,7 +127,7 @@ def API_available(API_URL):
     
     except requests.RequestException as e:
         registro["comment"] += f"[Error al conectar a la API ]"
-        print(f"Error al intentar conectar con la API: {e}")
+        print(f"Error al intentar conectar con la API: {API_URL} {e}")
     
     finally:
-        return resultado
+        return int(resultado)

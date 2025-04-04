@@ -107,7 +107,7 @@ def save_local_data(datos,file_path):
         json.dump(datos_existentes, archivo, indent=4)
 
 def API_available(API_URL):
-    resultado= None
+    resultado="0" 
     try:
         response = requests.get(API_URL, timeout=5)
         

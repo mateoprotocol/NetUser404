@@ -7,6 +7,7 @@ import os
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
 import concurrent.futures
+from validation import registro
  
 def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
     # Iniciar sesión para mantener cookies
@@ -225,20 +226,23 @@ def is_connected(timeout=5):
         socket.create_connection(("8.8.8.8", 53), timeout=timeout)
         return True
     except OSError:
+        registro["comment"] += "[No hay conexion a internet]"
         return False  
 
 def is_connected_to_network():
     """Verifica si el dispositivo está conectado a una red local (WiFi o cable)."""
     interfaces = psutil.net_if_addrs()
-    
+    valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp2s0'}
+
     for interfaz, direcciones in interfaces.items():
-        for direccion in direcciones:
-            if direccion.family == 2 and not direccion.address.startswith("127."):  
-                # Family 2 = IPv4, descartamos localhost (127.x.x.x)
-                print(f"Conectado a la red ({interfaz}: {direccion.address})")
-                return True
-    
-    print("No hay conexión a la red")
+        if interfaz in valid_interface:
+            for direccion in direcciones:
+                if direccion.family == 2 and not direccion.address.startswith("127."):
+                    # Family 2 = IPv4, descartamos localhost (127.x.x.x)
+                    print(f"Conectado a la red ({interfaz}: {direccion.address})")
+                    return True
+    registro["comment"] += "[No hay conexion a la red]"
+    print("No hay conexion a la red")
     return False    
 
 

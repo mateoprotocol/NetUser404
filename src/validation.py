@@ -2,6 +2,22 @@ import os
 import json
 import requests
 
+registro = {
+    'date': "N/A",
+    'hour': "N/A",
+    'system': "N/A",
+    'MAC': "N/A",
+    'bssid': "N/A",
+    'ip': "N/A",
+    'url': "N/A",
+    'status': -1,
+    'load': 9999.99,
+    'transferred': 0,
+    'delay': 9999.99,
+    'download': 9999.99,
+    'comment': ""
+}
+
 def get_urls(file_path):
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"El archivo {file_path} no existe.")
@@ -28,15 +44,16 @@ def save_data(datos, file_path):
 def send_to_api(datos, url_api, timeout=10):
     try:
         response = requests.post(url_api, json=datos, timeout=timeout)
-        response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
         return {
             "success": True,
             "status_code": response.status_code,
             "data": response.json() if response.content else None  # Intenta parsear la respuesta si hay contenido
         }
     except requests.exceptions.Timeout:
+        registro["comment"] += "[Tiempo de espera se agotó en la API]"
         return {"success": False, "error": "Timeout", "message": "El tiempo de espera se agotó."}
     except requests.exceptions.HTTPError as e:
+        registro["comment"] += f"[{response.status_code} API error]"
         return {
             "success": False, 
             "error": "HTTPError", 
@@ -44,6 +61,7 @@ def send_to_api(datos, url_api, timeout=10):
             "status_code": response.status_code if 'response' in locals() else None  # Verificación de existencia
         }
     except requests.exceptions.RequestException as e:
+        registro["comment"] += "[Error en la API]"
         return {"success": False, "error": "RequestException", "message": str(e)}
 
 def send_local_data(api_url,file_path):
@@ -61,28 +79,14 @@ def send_local_data(api_url,file_path):
                 os.remove(file_path)  # Eliminar el archivo después de enviarlo
                 return "Datos enviados y archivo eliminado con éxito."
             else:
+                registro["comment"] += f"[No se pudo enviar registros locales: {response.status_code} ]"
                 return f"Error al enviar datos: {response.status_code} - {response.text}"
 
         except Exception as e:
+            registro["comment"] += f"[No se pudo enviar registros locales]"
             return f"Ocurrió un error: {e}"
     else:
         return "No hay archivo 'datos.json' para enviar."
-
-def send_data(datos, url_api, timeout=10):
-    try:
-        response = requests.post(url_api, json=datos, timeout=timeout)
-        response.raise_for_status()  # Lanza una excepción si el código HTTP indica un error (4xx o 5xx)
-        return {
-            "success": True,
-            "status_code": response.status_code,
-            "data": response.json() if response.content else None  # Intenta parsear la respuesta si hay contenido
-        }
-    except requests.exceptions.Timeout:
-        return {"success": False, "error": "Timeout", "message": "El tiempo de espera se agotó."}
-    except requests.exceptions.HTTPError as e:
-        return {"success": False, "error": "HTTPError", "message": str(e), "status_code": response.status_code}
-    except requests.exceptions.RequestException as e:
-        return {"success": False, "error": "RequestException", "message": str(e)}
 
 def save_local_data(datos,file_path):
     if os.path.exists(file_path):
@@ -104,31 +108,18 @@ def API_available(API_URL):
             if resultado == "1":
                 print("La API está disponible (conectada a MongoDB).")
             elif resultado == "0":
+                registro["comment"] += "[Error al conectar a mongoDB]"
                 print("La API no está disponible (error al conectar a MongoDB).")
             else:
+                registro["comment"] += "[Error inesperado en la API]"
                 print(f"Respuesta inesperada: {resultado}")
         else:
+            registro["comment"] += f"[Error al conectar a la API: {response.status_code} ]"
             print(f"Error al conectar a la API. Código de estado: {response.status_code}")
     
     except requests.RequestException as e:
+        registro["comment"] += f"[Error al conectar a la API ]"
         print(f"Error al intentar conectar con la API: {e}")
     
     finally:
         return resultado
-
-
-registro = {
-    'date': "N/A",
-    'hour': "N/A",
-    'system': "N/A",
-    'MAC': "N/A",
-    'bssid': "N/A",
-    'ip': "N/A",
-    'url': "N/A",
-    'status': -1,
-    'load': 9999.99,
-    'transferred': 0,
-    'delay': 9999.99,
-    'download': 9999.99,
-    'comment': ""
-}

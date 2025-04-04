@@ -33,14 +33,15 @@ if __name__ == "__main__":
             registro["system"], registro["MAC"], registro["ip"], registro["bssid"] = identify()
         else:
             save_local_data(registro,LOCAL_FILE)
-            break
+            time.sleep(20)
+            continue 
 
         if is_connected():
             registro["load"], registro["transferred"], registro["status"], registro["download"], registro["delay"]= get_metrics(urls[i])
 
         if API_available(f"http://{server_url}:{server_port}/check-mongodb"):
             print(send_local_data(f"{URL_API}s", LOCAL_FILE))
-            print(send_data(registro, URL_API))
+            print(send_to_api(registro, URL_API))
         else:
             save_local_data(registro, LOCAL_FILE)
         

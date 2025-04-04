@@ -27,6 +27,8 @@ if __name__ == "__main__":
         registro["date"] = datetime.now().strftime("%Y-%m-%d")
         registro["hour"] = datetime.now().strftime("%H:%M:%S")
         
+        if i >= len(urls):
+            i=0
 
         registro["url"] = urls[i]
         if is_connected_to_network():
@@ -45,4 +47,5 @@ if __name__ == "__main__":
         else:
             save_local_data(registro, LOCAL_FILE)
         
+        i+=1
         time.sleep(20)

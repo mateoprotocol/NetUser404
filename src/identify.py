@@ -16,7 +16,7 @@ def get_net_interface(os="Linux"):
             result = subprocess.run(["ip", "r"], capture_output=True, text=True)
             interface = re.findall(r"dev (\S+)", result.stdout)
 
-            valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp2s0'}
+            valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0','wlp1s0','wlp2s0'}
 
             if interface[0] in valid_interface:
                 return interface[0]

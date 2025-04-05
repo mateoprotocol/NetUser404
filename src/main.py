@@ -35,6 +35,7 @@ if __name__ == "__main__":
             registro["system"], registro["MAC"], registro["ip"], registro["bssid"] = identify()
         else:
             save_local_data(registro,LOCAL_FILE)
+            reset_registro()
             time.sleep(20)
             continue 
 
@@ -48,5 +49,5 @@ if __name__ == "__main__":
             save_local_data(registro, LOCAL_FILE)
         
         i+=1
-        reset_registro()
+        
         time.sleep(20)

@@ -49,5 +49,5 @@ if __name__ == "__main__":
             save_local_data(registro, LOCAL_FILE)
         
         i+=1
-        
+        reset_registro()
         time.sleep(20)

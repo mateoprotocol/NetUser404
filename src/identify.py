@@ -14,7 +14,7 @@ def get_os():
     except:
         print("Error obteniendo sistema operativo")
         return "N/A"
-    
+      
 def get_bssid(interface, os="Linux"):
     if os=="Linux":
         try:

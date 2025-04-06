@@ -2,50 +2,18 @@ import subprocess
 import platform
 import re
 from validation import registro
+import psutil
+import os
 
 def get_os():
     try:
+        if platform.system() == "Linux":
+            if any(os.path.exists(p) for p in ["/system", "/data/data"]):
+                return "Android" 
         return platform.system()
     except:
         print("Error obteniendo sistema operativo")
         return "N/A"
-
-def get_net_interface(os="Linux"):
-    if os=="Linux":
-        try:
-            result = subprocess.run(["ip", "r"], capture_output=True, text=True)
-            interface = re.findall(r"dev (\S+)", result.stdout)
-
-            valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp2s0'}
-
-            if interface[0] in valid_interface:
-                return interface[0]
-            else:
-                registro["comment"] += "[Interfaz de red invalida]"
-                return "No hay interfaz valida"
-        except:
-            print("Error obteniendo interfaces")
-            return "N/A"
-
-def get_mac(interface, os="Linux"):
-    if os=="Linux":
-        try:
-            result = subprocess.run(["ip","link","show",interface], capture_output=True, text=True)
-            mac = re.findall(r"link/ether (\S+)", result.stdout)
-            return mac[0]
-        except:
-            print("Error obteniendo mac")
-            return "N/A"
-    
-def get_local_ip(os="Linux"):
-    if os=="Linux":
-        try:
-            result = subprocess.run(["ip","r"], capture_output=True, text=True)
-            ip = re.findall(r"src (\S+)", result.stdout)
-            return ip[0]
-        except:
-            print("Error al obtener la ip")
-            return "N/A"
     
 def get_bssid(interface, os="Linux"):
     if os=="Linux":
@@ -65,6 +33,22 @@ def get_bssid(interface, os="Linux"):
             print("Error al obtener bssid y ssid")
             return "N/A"
 
+def get_interface_ip_mac():
+    interfaces = psutil.net_if_addrs()
+    valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp1s0', 'wlp2s0'}
+    for interfaz, direcciones in interfaces.items():
+        if interfaz in valid_interface:
+            for direccion in direcciones:
+                if direccion.family == 2 and not direccion.address.startswith("127."):
+                    # Family 2 = IPv4, descartamos localhost (127.x.x.x)
+                    interface = interfaz
+                    ip = direccion.address
+                    print(f"Conectado a la red ({interfaz}: {direccion.address} - {direccion.netmask})")
+                if direccion.family == 17:
+                    mac=direccion.address
+                    print(f"MAC:  {direccion.address}")
+    
+    return interface, ip, mac 
 
 def identify():
     os= "N/A"
@@ -75,9 +59,7 @@ def identify():
 
 
     os= get_os()
-    interface= get_net_interface()
-    mac= get_mac(interface)
-    ip= get_local_ip()
+    interface, ip, mac = get_interface_ip_mac()
     bssid= get_bssid(interface)
 
     return os, mac, ip, bssid

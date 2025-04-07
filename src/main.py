@@ -6,7 +6,7 @@ import os
 from dotenv import load_dotenv
 from validation import *
 
-load_dotenv()  # Carga las variables del archivo .env
+load_dotenv(override=True) 
 
 # Constantes
 server_url = os.getenv("SERVER_URL")

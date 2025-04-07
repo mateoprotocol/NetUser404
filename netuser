@@ -1,6 +1,6 @@
 #!/bin/bash
 
-APP_DIR="/home/franyober/Documents/NetUser404"
+APP_DIR="/opt/NetUser404"
 VENV_DIR="$APP_DIR/env"
 PID_FILE="$APP_DIR/app.pid"
 LOG_FILE="$APP_DIR/app.log"

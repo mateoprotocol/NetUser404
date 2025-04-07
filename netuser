@@ -1,47 +1,101 @@
 #!/bin/bash
 
-APP_DIR="/home/franyober/Documents/NetUser404"  # Cambia esto a la ruta real de tu aplicación
+APP_DIR="/home/franyober/Documents/NetUser404"
 VENV_DIR="$APP_DIR/env"
 PID_FILE="$APP_DIR/app.pid"
-PYTHON_SCRIPT="src/main.py"  # Nombre del script Python a ejecutar
+LOG_FILE="$APP_DIR/app.log"
+PYTHON_SCRIPT="src/main.py"
+
+# Colores para mensajes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+check_requirements() {
+    local missing=0
+    
+    if [ ! -d "$VENV_DIR" ]; then
+        echo -e "${RED}Error: No se encontró el entorno virtual en $VENV_DIR${NC}"
+        missing=$((missing + 1))
+    fi
+    
+    if [ ! -f "$APP_DIR/$PYTHON_SCRIPT" ]; then
+        echo -e "${RED}Error: No se encontró el script Python $PYTHON_SCRIPT${NC}"
+        missing=$((missing + 1))
+    fi
+    
+    return $missing
+}
 
 start_app() {
-    if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-        echo "La aplicación ya está en ejecución con PID $(cat "$PID_FILE")."
-        exit 1
-    fi
+    if check_requirements; then
+        if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
+            echo -e "${YELLOW}La aplicación ya está en ejecución con PID $(cat "$PID_FILE").${NC}"
+            return 1
+        fi
 
-    echo "Iniciando la aplicación..."
-    cd "$APP_DIR" || { echo "Error: No se pudo acceder a $APP_DIR"; exit 1; }
-    source "$VENV_DIR/bin/activate"  # Activa el entorno virtual
-    nohup python "$PYTHON_SCRIPT" > "$APP_DIR/app.log" 2>&1 &  # Ejecuta el script en segundo plano
-    echo $! > "$PID_FILE"  # Guarda el PID del proceso
-    echo "Aplicación iniciada con PID $(cat "$PID_FILE")."
+        echo -e "${GREEN}Iniciando la aplicación...${NC}"
+        cd "$APP_DIR" || { echo -e "${RED}Error: No se pudo acceder a $APP_DIR${NC}"; return 1; }
+        source "$VENV_DIR/bin/activate" || { echo -e "${RED}Error al activar el entorno virtual${NC}"; return 1; }
+        
+        nohup python "$PYTHON_SCRIPT" > "$LOG_FILE" 2>&1 &
+        local pid=$!
+        echo $pid > "$PID_FILE"
+        echo -e "${GREEN}Aplicación iniciada con PID $pid.${NC}"
+        echo -e "Registros: $LOG_FILE"
+    else
+        echo -e "${RED}No se pudo iniciar la aplicación - requisitos faltantes${NC}"
+        return 1
+    fi
 }
 
 status_app() {
     if [ -f "$PID_FILE" ]; then
-        PID=$(cat "$PID_FILE")
-        if kill -0 "$PID" 2>/dev/null; then
-            echo "La aplicación está en ejecución con PID $PID."
+        local pid=$(cat "$PID_FILE")
+        if kill -0 "$pid" 2>/dev/null; then
+            echo -e "${GREEN}La aplicación está en ejecución con PID $pid.${NC}"
+            return 0
         else
-            echo "El proceso con PID $PID no está activo. Eliminando PID file..."
+            echo -e "${YELLOW}El proceso con PID $pid no está activo. Eliminando PID file...${NC}"
             rm -f "$PID_FILE"
+            return 1
         fi
     else
-        echo "La aplicación no está en ejecución."
+        echo -e "${YELLOW}La aplicación no está en ejecución.${NC}"
+        return 1
     fi
 }
 
 stop_app() {
     if [ -f "$PID_FILE" ]; then
-        PID=$(cat "$PID_FILE")
-        echo "Deteniendo la aplicación con PID $PID..."
-        kill "$PID"
-        rm -f "$PID_FILE"
-        echo "Aplicación detenida."
+        local pid=$(cat "$PID_FILE")
+        echo -e "${GREEN}Deteniendo la aplicación con PID $pid...${NC}"
+        if kill "$pid"; then
+            rm -f "$PID_FILE"
+            echo -e "${GREEN}Aplicación detenida.${NC}"
+            return 0
+        else
+            echo -e "${RED}Error al detener la aplicación.${NC}"
+            return 1
+        fi
     else
-        echo "No hay un proceso en ejecución."
+        echo -e "${YELLOW}No hay un proceso en ejecución.${NC}"
+        return 1
+    fi
+}
+
+restart_app() {
+    stop_app
+    sleep 2
+    start_app
+}
+
+show_logs() {
+    if [ -f "$LOG_FILE" ]; then
+        less "$LOG_FILE"
+    else
+        echo -e "${YELLOW}No hay archivo de registro disponible.${NC}"
     fi
 }
 
@@ -55,8 +109,16 @@ case "$1" in
     stop)
         stop_app
         ;;
+    restart)
+        restart_app
+        ;;
+    logs)
+        show_logs
+        ;;
     *)
-        echo "Uso: $0 {start|status|stop}"
+        echo -e "${GREEN}Uso: $0 {start|status|stop|restart|logs}${NC}"
         exit 1
         ;;
 esac
+
+exit $?

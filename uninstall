@@ -1,0 +1,56 @@
+#!/bin/bash
+
+# Configurables (deben coincidir con los del script de instalación)
+PROJECT_NAME="NetUser404"
+INSTALL_DIR="/opt/$PROJECT_NAME"
+BIN_NAME="netuser"  # Nombre del comando CLI
+
+# Verificar si se ejecuta como root
+if [ "$(id -u)" -ne 0 ]; then
+    echo "Este script debe ejecutarse como root para desinstalar correctamente."
+    echo "Ejecuta con: sudo $0"
+    exit 1
+fi
+
+# Función para confirmar la desinstalación
+confirm_uninstall() {
+    read -p "¿Estás seguro de que quieres desinstalar $PROJECT_NAME? [y/N] " -r
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "Desinstalación cancelada."
+        exit 0
+    fi
+}
+
+# Detener la aplicación si está en ejecución
+stop_app() {
+    if [ -f "$INSTALL_DIR/app.pid" ]; then
+        echo "Deteniendo la aplicación..."
+        "$BIN_NAME" stop || echo "No se pudo detener la aplicación (¿ya estaba detenida?)."
+    fi
+}
+
+# Eliminar archivos y directorios
+remove_files() {
+    echo "Eliminando archivos..."
+    
+    # Binario global
+    if [ -f "/usr/local/bin/$BIN_NAME" ]; then
+        rm -f "/usr/local/bin/$BIN_NAME" && echo "✓ Binario CLI removido."
+    else
+        echo "El binario CLI no existe en /usr/local/bin/$BIN_NAME."
+    fi
+
+    # Directorio de instalación
+    if [ -d "$INSTALL_DIR" ]; then
+        rm -rf "$INSTALL_DIR" && echo "✓ Directorio $INSTALL_DIR removido."
+    else
+        echo "El directorio $INSTALL_DIR no existe."
+    fi
+}
+
+# --- Ejecución principal ---
+confirm_uninstall
+stop_app
+remove_files
+
+echo -e "\n[+] $PROJECT_NAME ha sido desinstalado completamente."

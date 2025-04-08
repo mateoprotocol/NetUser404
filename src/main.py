@@ -11,7 +11,7 @@ load_dotenv(override=True)
 # Constantes
 server_url = os.getenv("SERVER_URL")
 server_port = os.getenv("SERVER_PORT")
-URLS_FILE = os.getenv("FILE_URLS")
+URLS_FILE = 'urls.txt'
 PING_TARGET = os.getenv("PING_TARGET")
 
 URL_API = f'http://{server_url}:{server_port}/metric'

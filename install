@@ -93,6 +93,9 @@ apt-get update && apt-get install -y \
     python3-venv \
     python3-pip
 
+# Dando permisos para ejecutar ping desde python
+setcap cap_net_raw+ep $(readlink -f $(which python3))
+
 # Clonar el repositorio
 echo "[+] Clonando repositorio de GitHub..."
 if [ -d "$INSTALL_DIR" ]; then

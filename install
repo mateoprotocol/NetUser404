@@ -87,6 +87,7 @@ fi
 # Instalar dependencias del sistema
 echo "[+] Instalando dependencias del sistema..."
 apt-get update && apt-get install -y \
+    apt install iw \
     git \
     python3 \
     python3-venv \

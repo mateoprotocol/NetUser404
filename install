@@ -128,5 +128,5 @@ chmod +x "$INSTALL_DIR/netuser"
 echo -e "\n[+] Instalación completada exitosamente!"
 echo -e "Puedes ahora usar el comando \e[1m$BIN_NAME\e[0m desde cualquier lugar:"
 echo -e "  $BIN_NAME start   - Iniciar la aplicación"
-echo -e "  $BIN_NAME stop    - Detener la
+echo -e "  $BIN_NAME stop    - Detener la aplicación"
 echo -e "  $BIN_NAME logs    - Ver logs\n"

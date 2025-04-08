@@ -4,7 +4,9 @@ APP_DIR="/opt/NetUser404"
 VENV_DIR="$APP_DIR/env"
 PID_FILE="$APP_DIR/app.pid"
 LOG_FILE="$APP_DIR/app.log"
-PYTHON_SCRIPT="src/main.py"
+PYTHON_MAIN_SCRIPT="src/main.py"
+PYTHON_MENU_SCRIPT="src/menu.py"
+ENV_FILE="$APP_DIR/.env"
 
 # Colores para mensajes
 RED='\033[0;31m'
@@ -20,12 +22,24 @@ check_requirements() {
         missing=$((missing + 1))
     fi
     
-    if [ ! -f "$APP_DIR/$PYTHON_SCRIPT" ]; then
-        echo -e "${RED}Error: No se encontró el script Python $PYTHON_SCRIPT${NC}"
+    if [ ! -f "$APP_DIR/$PYTHON_MAIN_SCRIPT" ]; then
+        echo -e "${RED}Error: No se encontró el script Python $PYTHON_MAIN_SCRIPT${NC}"
+        missing=$((missing + 1))
+    fi
+    
+    if [ ! -f "$APP_DIR/$PYTHON_MENU_SCRIPT" ]; then
+        echo -e "${RED}Error: No se encontró el script Python $PYTHON_MENU_SCRIPT${NC}"
         missing=$((missing + 1))
     fi
     
     return $missing
+}
+
+run_menu_script() {
+    echo -e "${GREEN}Ejecutando el menú de configuración...${NC}"
+    cd "$APP_DIR" || { echo -e "${RED}Error: No se pudo acceder a $APP_DIR${NC}"; return 1; }
+    source "$VENV_DIR/bin/activate" || { echo -e "${RED}Error al activar el entorno virtual${NC}"; return 1; }
+    python "$PYTHON_MENU_SCRIPT"
 }
 
 start_app() {
@@ -35,11 +49,17 @@ start_app() {
             return 1
         fi
 
+        # Verificar si existe el archivo .env
+        if [ ! -f "$ENV_FILE" ]; then
+            echo -e "${YELLOW}No se encontró el archivo .env. Ejecutando menú de configuración primero...${NC}"
+            run_menu_script || { echo -e "${RED}Error al ejecutar el menú de configuración${NC}"; return 1; }
+        fi
+
         echo -e "${GREEN}Iniciando la aplicación...${NC}"
         cd "$APP_DIR" || { echo -e "${RED}Error: No se pudo acceder a $APP_DIR${NC}"; return 1; }
         source "$VENV_DIR/bin/activate" || { echo -e "${RED}Error al activar el entorno virtual${NC}"; return 1; }
         
-        nohup python "$PYTHON_SCRIPT" > "$LOG_FILE" 2>&1 &
+        nohup python "$PYTHON_MAIN_SCRIPT" > "$LOG_FILE" 2>&1 &
         local pid=$!
         echo $pid > "$PID_FILE"
         echo -e "${GREEN}Aplicación iniciada con PID $pid.${NC}"
@@ -115,8 +135,17 @@ case "$1" in
     logs)
         show_logs
         ;;
+    configure)
+        run_menu_script
+        ;;
     *)
-        echo -e "${GREEN}Uso: $0 {start|status|stop|restart|logs}${NC}"
+        echo -e "${GREEN}Uso: $0 {start|status|stop|restart|logs|configure}${NC}"
+        echo -e "  start     - Inicia la aplicación (ejecuta menu.py primero si no existe .env)"
+        echo -e "  status    - Muestra el estado de la aplicación"
+        echo -e "  stop      - Detiene la aplicación"
+        echo -e "  restart   - Reinicia la aplicación"
+        echo -e "  logs      - Muestra los logs de la aplicación"
+        echo -e "  configure - Ejecuta solo el menú de configuración (menu.py)"
         exit 1
         ;;
 esac

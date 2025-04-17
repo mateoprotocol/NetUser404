@@ -10,3 +10,5 @@ requests==2.32.3
 soupsieve==2.6
 typing_extensions==4.13.2
 urllib3==2.4.0
+questionary==2.1.0
+rich==14.0.0

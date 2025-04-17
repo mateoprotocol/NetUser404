@@ -234,7 +234,7 @@ def is_connected(timeout=5):
 def is_connected_to_network():
     """Verifica si el dispositivo está conectado a una red local (WiFi o cable)."""
     interfaces = psutil.net_if_addrs()
-    valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp1s0', 'wlp2s0'}
+    valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp1s0', 'wlp2s0', 'wlp3s0'}
 
     for interfaz, direcciones in interfaces.items():
         if interfaz in valid_interface:

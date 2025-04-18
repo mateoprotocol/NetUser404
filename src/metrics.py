@@ -249,16 +249,16 @@ def is_connected_to_network():
 
 def get_metrics(url):
    
-   time = 9999.99
+   load_time = 9999.99
    transferred = 0
    status = -1
    delay = 9999.99
 
-   time, transferred, status = descargar_recursos_paralelo(url)
+   load_time, transferred, status = descargar_recursos_paralelo(url)
    download = download_time() 
    delay = average_ping("8.8.8.8")
 
-   return time, transferred, status, download, delay
+   return load_time, transferred, status, download, delay
 
 if __name__ == "__main__":
     url_prueba = "https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos"

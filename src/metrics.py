@@ -10,7 +10,7 @@ import concurrent.futures
 from validation import registro
 import shutil
  
-def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
+def descargar_recursos_paralelo(url, max_workers=20, timeout=2):
     # Iniciar sesión para mantener cookies
     sesion = requests.Session()
     
@@ -156,7 +156,8 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
         print(f"Error general: {e}")
         return None
     finally:
-        shutil.rmtree(nombre_dominio)
+        if os.path.exists(nombre_dominio):
+            shutil.rmtree(nombre_dominio)
 
 def download_binary_file(url, filename="10MB.bin"):
     try:
@@ -197,7 +198,7 @@ def delete_file(filename):
     except Exception as e:
         print(f"Error al eliminar el archivo: {e}")
 
-def download_time(url = "https://drive.google.com/file/d/1Qumkqt-oCvSSH7b1OuT3IUT_7nYVwbWR/view?usp=drive_link", filename="filename"):
+def download_time(url = "http://ipv4.download.thinkbroadband.com/10MB.zip", filename="filename"):
     downloaded_file, download_time =  download_binary_file(url)
     if downloaded_file:
         delete_file(downloaded_file)

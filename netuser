@@ -61,6 +61,10 @@ start_app() {
         
         nohup python "$PYTHON_MAIN_SCRIPT" > "$LOG_FILE" 2>&1 &
         local pid=$!
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}Error al iniciar la aplicación con nohup.${NC}"
+            return 1
+        fi
         echo $pid > "$PID_FILE"
         echo -e "${GREEN}Aplicación iniciada con PID $pid.${NC}"
         echo -e "Registros: $LOG_FILE"

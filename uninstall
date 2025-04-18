@@ -25,7 +25,12 @@ confirm_uninstall() {
 stop_app() {
     if [ -f "$INSTALL_DIR/app.pid" ]; then
         echo "Deteniendo la aplicación..."
-        "$BIN_NAME" stop || echo "No se pudo detener la aplicación (¿ya estaba detenida?)."
+        
+        if command -v "$BIN_NAME" &> /dev/null; then
+            "$BIN_NAME" stop || echo "No se pudo detener la aplicación (¿ya estaba detenida?)."
+        else
+            echo "Comando $BIN_NAME no está disponible. Saltando parada de aplicación."
+        fi
     fi
 }
 

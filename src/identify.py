@@ -35,10 +35,11 @@ def get_bssid(interface, os="Linux"):
 
 def get_interface_ip_mac():
     mac="N/A"
+    interface = "N/A"
+    ip = "N/A"
     interfaces = psutil.net_if_addrs()
-    valid_interface = {'eth0', 'eth1', 'wlan0', 'wlan1', 'enp3s0', 'wlp1s0', 'wlp2s0', 'wlp3s0'}
     for interfaz, direcciones in interfaces.items():
-        if interfaz in valid_interface:
+        if "wl" in interfaz or "en" in interfaz or "eth" in interfaz:
             for direccion in direcciones:
                 if direccion.family == 2 and not direccion.address.startswith("127."):
                     # Family 2 = IPv4, descartamos localhost (127.x.x.x)

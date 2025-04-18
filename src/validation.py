@@ -1,3 +1,4 @@
+from ast import Return
 import os
 import json
 import requests
@@ -87,8 +88,11 @@ def send_local_data(api_url,file_path):
 
 def save_local_data(datos,file_path):
     if os.path.exists(file_path):
-        with open(file_path, 'r') as archivo:
-            datos_existentes = json.load(archivo)
+        try:
+            with open(file_path, 'r') as archivo:
+                datos_existentes = json.load(archivo)
+        except json.JSONDecodeError:
+            return "Error: el archivo de datos locales está corrupto o mal formado"
     else:
         datos_existentes = []
     datos_existentes.append(datos)

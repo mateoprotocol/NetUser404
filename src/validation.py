@@ -38,17 +38,6 @@ def get_urls(file_path):
     
     return urls
 
-def save_data(datos, file_path):
-    """Guarda los datos localmente en un archivo JSON."""
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as archivo:
-            datos_existentes = json.load(archivo)
-    else:
-        datos_existentes = []
-    datos_existentes.append(datos)
-    with open(file_path, 'w') as archivo:
-        json.dump(datos_existentes, archivo, indent=4)
-
 def send_to_api(datos, url_api, timeout=10):
     try:
         response = requests.post(url_api, json=datos, timeout=timeout)

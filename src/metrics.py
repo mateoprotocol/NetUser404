@@ -250,10 +250,10 @@ def is_connected_to_network():
 
 def get_metrics(url):
    
-   load_time = 9999.99
+   load_time = -1
    transferred = 0
    status = -1
-   delay = 9999.99
+   delay = -1
 
    load_time, transferred, status = descargar_recursos_paralelo(url)
    download = download_time() 

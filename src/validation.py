@@ -12,19 +12,19 @@ registro = {
     'ip': "N/A",
     'url': "N/A",
     'status': -1,
-    'load': 9999.99,
-    'transferred': 0,
-    'delay': 9999.99,
-    'download': 9999.99,
+    'load': -1,
+    'transferred': -1,
+    'delay': -1,
+    'download': -1,
     'comment': ""
 }
 
 def reset_registro():
     registro["status"] = -1
-    registro["load"] = 9999.99
+    registro["load"] = -1
     registro["transferred"] = 0
-    registro["delay"] = 9999.99
-    registro["download"] = 9999.99
+    registro["delay"] = -1
+    registro["download"] = -1
     registro["comment"] = ""
 
 def get_urls(file_path):

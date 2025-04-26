@@ -13,7 +13,7 @@ El módulo de recolección de datos de NetUser404 permite monitorear la calidad 
 En una terminal ejecutar:
 
 ```
-wget https://raw.githubusercontent.com/mateoprotocol/NetUser404/refs/heads/main/instal|l
+wget https://raw.githubusercontent.com/mateoprotocol/NetUser404/refs/heads/main/install
 ```
 
 Se descargará el instalador `install`.

@@ -1,11 +1,11 @@
 # Introducción
 
-El módulo de recolección de datos de NetUser404 permite monitorear la calidad de la conectividad a internet desde la perspectiva del usuario final. Esta herramienta automatizada se ejecuta en segundo plano en el equipo del usuario o en un equipo dedicado como una Raspberry Pi, recolectando métricas clave como: tiempo de carga de páginas, latencia, velocidad de descarga, tamaño transferido, entre otras.
+El módulo de recolección de datos de NetUser404 permite monitorear la calidad de la conectividad a internet desde la perspectiva del usuario final. Esta herramienta automatizada se ejecuta en segundo plano en el equipo del usuario o un equipo dedicado como una rasberry pi, recolectando métricas clave como tiempo de carga de páginas, latencia, velocidad de descarga, tamaño transferido, entre otras. El repositorio general de este proyecto se encuentra en [NetUser404-docs](https://github.com/franyober/netUser404-docs/).
 
 # Requisitos
 
 * Sistema operativo Linux
-* Que ya esté configurado la API y base de datos [Netuser-api](https://github.com/franyober/netUser404-api/)
+* Que ya esté configurado la API y base de datos. Ir a [NetUser404-api](https://github.com/franyober/netUser404-api/) en caso de que no lo este.
 
 
 # Instalación

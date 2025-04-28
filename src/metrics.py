@@ -10,7 +10,7 @@ import concurrent.futures
 from validation import registro
 import shutil
  
-def descargar_recursos_paralelo(url, max_workers=20, timeout=2):
+def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
     # Iniciar sesión para mantener cookies
     sesion = requests.Session()
     

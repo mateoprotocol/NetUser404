@@ -1,4 +1,3 @@
-from ast import Return
 import os
 import json
 import requests

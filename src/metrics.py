@@ -13,6 +13,7 @@ import shutil
 def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
     # Iniciar sesión para mantener cookies
     sesion = requests.Session()
+    nombre_dominio =  None
     
     # Headers para simular navegador con mejor precisión
     headers = {
@@ -156,7 +157,7 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
         print(f"Error general: {e}")
         return None
     finally:
-        if os.path.exists(nombre_dominio):
+        if os.path.exists(nombre_dominio) and os.path.exists(nombre_dominio):
             shutil.rmtree(nombre_dominio)
 
 def download_binary_file(url, filename="10MB.bin"):
@@ -249,17 +250,29 @@ def is_connected_to_network():
 
 
 def get_metrics(url):
-   
-   load_time = -1
-   transferred = 0
-   status = -1
-   delay = -1
+    load_time = -1
+    transferred = 0
+    status = -1
+    delay = -1
 
-   load_time, transferred, status = descargar_recursos_paralelo(url)
-   download = download_time() 
-   delay = average_ping("8.8.8.8")
+    resultado = descargar_recursos_paralelo(url)
+    if resultado:
+        load_time, transferred, status = resultado
+    else:
+        load_time = -1
+        transferred = 0
+        status = -1
 
-   return load_time, transferred, status, download, delay
+    download = download_time()
+    if download is None:
+        download = -1
+
+    delay = average_ping("8.8.8.8")
+    if delay is None:
+        delay = -1
+
+    return load_time, transferred, status, download, delay
+
 
 if __name__ == "__main__":
     url_prueba = "https://es.wikipedia.org/wiki/Antigua_Atenas#Primeros_tiempos"

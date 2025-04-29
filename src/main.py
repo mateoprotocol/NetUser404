@@ -30,6 +30,8 @@ if __name__ == "__main__":
         registro["hour"] = datetime.now().strftime("%H:%M:%S")
         
         if i >= len(urls):
+            with open("app.log","w") as f:
+                f.write("")
             i=0
 
         registro["url"] = urls[i]

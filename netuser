@@ -58,7 +58,8 @@ start_app() {
         echo -e "${GREEN}Iniciando la aplicación...${NC}"
         cd "$APP_DIR" || { echo -e "${RED}Error: No se pudo acceder a $APP_DIR${NC}"; return 1; }
         source "$VENV_DIR/bin/activate" || { echo -e "${RED}Error al activar el entorno virtual${NC}"; return 1; }
-        
+       	
+       	: > "$LOG_FILE"	
         nohup python "$PYTHON_MAIN_SCRIPT" > "$LOG_FILE" 2>&1 &
         local pid=$!
         if [ $? -ne 0 ]; then

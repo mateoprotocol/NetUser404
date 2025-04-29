@@ -157,7 +157,7 @@ def descargar_recursos_paralelo(url, max_workers=20, timeout=10):
         print(f"Error general: {e}")
         return None
     finally:
-        if os.path.exists(nombre_dominio) and os.path.exists(nombre_dominio):
+        if nombre_dominio and os.path.exists(nombre_dominio):
             shutil.rmtree(nombre_dominio)
 
 def download_binary_file(url, filename="10MB.bin"):

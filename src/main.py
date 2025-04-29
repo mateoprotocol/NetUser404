@@ -40,7 +40,7 @@ if __name__ == "__main__":
             else:
                 registro["MAC"] = f"{DEVICE_NAME}({mac})"
             if registro["bssid"] == "N/A":
-                registro["bssid"] = NETWORK_NAMEm
+                registro["bssid"] = NETWORK_NAME
         else:
             registro["MAC"] = DEVICE_NAME
             registro["bssid"] = NETWORK_NAME

@@ -14,6 +14,7 @@ server_port = os.getenv("SERVER_PORT")
 URLS_FILE = 'urls.txt'
 PING_TARGET = os.getenv("PING_TARGET")
 DEVICE_NAME = os.getenv("NAME", "SinNombre")
+NETWORK_NAME = os.getenv("NETWORK_NAME", "RedDesconocida")
 
 URL_API = f'http://{server_url}:{server_port}/metric'
 LOCAL_FILE= "datos.json"
@@ -34,9 +35,15 @@ if __name__ == "__main__":
         registro["url"] = urls[i]
         if is_connected_to_network():
             registro["system"], mac, registro["ip"], registro["bssid"] = identify()
-            registro["MAC"] = f"{DEVICE_NAME}({mac})"
+            if mac == "N/A":
+                registro["MAC"] = DEVICE_NAME
+            else:
+                registro["MAC"] = f"{DEVICE_NAME}({mac})"
+            if registro["bssid"] == "N/A":
+                registro["bssid"] = NETWORK_NAMEm
         else:
             registro["MAC"] = DEVICE_NAME
+            registro["bssid"] = NETWORK_NAME
             save_local_data(registro,LOCAL_FILE)
             reset_registro()
             time.sleep(20)

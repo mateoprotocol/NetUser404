@@ -24,6 +24,11 @@ def nombre():
 
     console.print(f"Dispositivo guardado como: [cyan]{nombre}[/]")
 
+def add_network_name():
+    nombre_red = input("Ingrese un nombre para identificar su red en caso de no detectar SSID o estar conectado por cable\n>>> ")
+    console.print(f"Se ha guardado la red como: {nombre_red}")
+    set_key(".env", "NETWORK_NAME", nombre_red)
+
 
 def check_api_menu():
     while True:
@@ -108,5 +113,7 @@ if __name__ == "__main__":
     add_url_menu()
 
     add_ping()
+
+    add_network_name()
     
 

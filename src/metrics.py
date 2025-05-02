@@ -199,11 +199,10 @@ def delete_file(filename):
     except Exception as e:
         print(f"Error al eliminar el archivo: {e}")
 
-def download_time( url="https://drive.google.com/uc?export=download&id=1Y5_JsDWYKBYTSnmSOEK3FiAUH7SBEEHM", filename="filename"):
+def download_time( url="https://drive.google.com/file/d/1Qumkqt-oCvSSH7b1OuT3IUT_7nYVwbWR/view?usp=drive_link", filename="filename"):
     downloaded_file, download_time =  download_binary_file(url)
     if downloaded_file:
         delete_file(downloaded_file)
-    
     return ((1e6*8)/download_time)/1e6
 
 def average_ping(host, count=5, timeout=1):

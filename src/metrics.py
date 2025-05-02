@@ -203,7 +203,7 @@ def download_time( url="https://drive.google.com/file/d/1Qumkqt-oCvSSH7b1OuT3IUT
     downloaded_file, download_time =  download_binary_file(url)
     if downloaded_file:
         delete_file(downloaded_file)
-    return ((1e6*8)/download_time)/1e6
+    return ((10e6*8)/download_time)/1e6
 
 def average_ping(host, count=5, timeout=1):
     """
